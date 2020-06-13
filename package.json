@@ -1,0 +1,59 @@
+{
+  "name": "wrk",
+  "version": "1.0.0",
+  "description": "Startup kit for Bitrix fullstack development",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Serge Rola <serge.rola@gmail.com>",
+  "homepage": "git@bitbucket.org:devrola/wrk.git#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@bitbucket.org:devrola/wrk.git"
+  },
+  "keywords": [
+    "development",
+    "template",
+    "bitrix",
+    "frontend"
+  ],
+  "license": "ISC",
+  "dependencies": {
+    "bower": "^1.8.8",
+    "gulp-sourcemaps": "^2.6.5"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.8.7",
+    "@babel/preset-env": "^7.8.7",
+    "@babel/preset-react": "^7.8.3",
+    "babel": "^6.23.0",
+    "babel-core": "^6.26.3",
+    "babelify": "^10.0.0",
+    "browser-sync": "^2.26.7",
+    "browserify": "^16.5.0",
+    "gulp": "^4.0.2",
+    "gulp-autoprefixer": "^6.1.0",
+    "gulp-babel": "^8.0.0",
+    "gulp-file-include": "^2.1.1",
+    "gulp-imagemin": "^6.1.0",
+    "gulp-jsx": "^2.0.1",
+    "gulp-minifier": "^2.0.0",
+    "gulp-notify": "latest",
+    "gulp-plumber": "latest",
+    "gulp-pug": "latest",
+    "gulp-rename": "latest",
+    "gulp-rigger": "latest",
+    "gulp-sass": "latest",
+    "markdown": "^0.5.0",
+    "vinyl-buffer": "latest",
+    "vinyl-source-stream": "latest"
+  },
+  "env": {
+    "node": "<=6.*.*"
+  },
+  "browserslist": [
+    "defaults",
+    "last 10 versions"
+  ]
+}

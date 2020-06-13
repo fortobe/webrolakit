@@ -1,0 +1,43 @@
+/*
+Illustrated Features.
+
+utils:
+
+- abs
+- al-(center, right, left, just)
+- bg-(bgrey,black,blue,brown,cyan,dblue,dgreen,dorange,dpurple,dred,dyellow,golden,green,grey,indigo,ocean,orange,pink,purple,red,white,yellow)
+- btn
+- d-(bl, ibl)
+- divider: halfed, quartered, triole
+- inputs (text, number, checkbox, radio, select, textarea)
+- text-link
+- to-(left, right, bottom, top)
+
+components:
+
+- accordeon
+- parallax
+
+ */
+
+.parallax {
+    border-bottom: inset 10px black;
+
+    .back-layer {
+        background: repeating-linear-gradient(
+                        transparent 0px,
+                        transparent 50px,
+                        rgba(255,128,128,0.3) 50px,
+                        rgba(255,128,128,0.3) 100px
+        );
+    }
+
+    .mid-layer {
+        background: repeating-linear-gradient(
+                        rgba(70, 255, 117, 0.3) 0px,
+                        rgba(70, 255, 117, 0.3) 50px,
+                        transparent 50px,
+                        transparent 100px
+        );
+    }
+}

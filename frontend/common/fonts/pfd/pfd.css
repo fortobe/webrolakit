@@ -1,0 +1,7 @@
+@font-face {
+    font-family: 'PFD';
+    src: url('ufonts.com_pfdintextcondpro-regular.eot');
+    src: local('?'), url('ufonts.com_pfdintextcondpro-regular.woff') format('woff'), url('ufonts.com_pfdintextcondpro-regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}

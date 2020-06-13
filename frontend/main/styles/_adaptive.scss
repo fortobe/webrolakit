@@ -1,0 +1,65 @@
+@import "frontend/common/styles/vars";
+
+// Mobile First
+// => FullHD (1920px)
+@media (min-width: $bp_fhd + px) {
+
+}
+// => HD (1600px)
+@media (min-width: $bp_hd + px) {
+
+}
+// => Desktop (1440px)
+@media (min-width: $bp_hdr + px) {
+
+}
+// => Laptop (1200px)
+@media (min-width: $bp_xl + px) {
+
+}
+// => Netbook(992px)
+@media (min-width: $bp_lg + px) {
+
+}
+// => Tablet (768px)
+@media (min-width: $bp_md + px) {
+
+}
+// => Mobile+ (576px)
+@media (min-width: $bp_sm + px) {
+
+}
+// => Mobile (320px)
+@media (min-width: $bp_xs + px) {
+
+}
+
+// Collapsing
+//  < HD (1920px)
+@media (max-width: $bp_fhd - 1 + px) {
+
+}
+//  < HD Ready (1600px)
+@media (max-width: $bp_hd - 1 + px) {
+
+}
+//  < Desktop (1440px)
+@media (max-width: $bp_hdr - 1 + px) {
+
+}
+//  < Laptop (1200px)
+@media (max-width: $bp_xl - 1 + px) {
+
+}
+//  < Tablet (922px)
+@media (max-width: $bp_lg - 1 + px) {
+
+}
+//  < Mobile+ (768px)
+@media (max-width: $bp_md - 1 + px) {
+
+}
+//  < Mobile (576px)
+@media (max-width: $bp_sm - 1 + px) {
+
+}

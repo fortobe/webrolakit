@@ -1,0 +1,32 @@
+@font-face {
+	font-family: 'Greta Text';
+	src: url('GretaTextPro-Light.eot');
+	src: local('Greta Text'), local('GretaText'),
+		url('GretaTextPro-Light.eot?#iefix') format('embedded-opentype'),
+		url('GretaTextPro-Light.woff') format('woff'),
+		url('GretaTextPro-Light.ttf') format('truetype');
+	font-weight: 300;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'Greta Text';
+	src: url('GretaTextPro-Bold.eot');
+	src: local('Greta Text'), local('GretaText'),
+		url('GretaTextPro-Bold.eot?#iefix') format('embedded-opentype'),
+		url('GretaTextPro-Bold.woff') format('woff'),
+		url('GretaTextPro-Bold.ttf') format('truetype');
+	font-weight: bold;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'Greta Text';
+	src: url('GretaTextPro-Regular.eot');
+	src: local('Greta Text'), local('GretaText'),
+		url('GretaTextPro-Regular.eot?#iefix') format('embedded-opentype'),
+		url('GretaTextPro-Regular.woff') format('woff'),
+		url('GretaTextPro-Regular.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+}

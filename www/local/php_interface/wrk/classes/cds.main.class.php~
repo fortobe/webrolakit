@@ -1,0 +1,315 @@
+<?
+
+namespace cds\classes;
+
+use Bitrix\Main\DB\MysqliConnection;
+
+\CModule::IncludeModule("search");
+\CModule::IncludeModule("iblock");
+\CModule::IncludeModule("highloadblock");
+
+use Bitrix\Highloadblock as HL;
+
+class main {
+
+    //returns: (Array) array of users of one partifular user if $b_unwrap is true.
+    //takes: $s_group - name of the user's group, $b_index_id - defines whether set users' ids as array's keys or not,
+    //$b_unwrap - return result as array of single user (cannot be used with $b_index_id = true and
+    // if more than one user returns only the first one
+    public static function get_user_list($s_group = false, $b_index_id = false, $b_unwrap = false) {
+        $a_users = array();
+        if($s_group) {
+            $a_filter = array();
+            switch($s_group){
+                case "admins":
+                    $a_filter["GROUPS_ID"] = 1;
+                    break;
+                default:
+                    $a_filter = false;
+            }
+        }
+        $a_sort = array("id" => "asc");
+        if ($a_filter) $rs_users = \CUser::GetList($a_sort, $a_filter);
+        else $rs_users = \CUser::GetList($a_sort);
+        while ($a_user = $rs_users->GetNext()){
+            if($b_index_id) $a_users[$a_user["ID"]] = $a_user;
+            else $a_users[] = $a_user;
+        }
+        if (count($a_users) == 0) return false;
+        elseif (count($a_users) == 1 && $b_unwrap && !$b_index_id) return $a_users[0];
+        else return $a_users;
+    }
+
+    //returns: (int|bool) group id of user or false if not found.
+    //takes: $o_user - object of user, $s_role - particular name of the user group;
+    public static function get_user_group($o_user, $s_role = false) {
+        $b_return = false;
+        if ($s_role) {
+            switch($s_role) {
+                default:
+                    $i_group = false;
+            }
+            if ($i_group) {
+                $d_groups = $o_user->GetParam("GROUPS");
+                if (is_array($d_groups)) {
+                    foreach($d_groups as $d_group){
+                        if ($d_group == $i_group) $b_return = true;
+                    }
+                }
+                elseif (is_bool($d_groups)) $b_return = false;
+                else {
+                    if ($d_groups == $i_group) $b_return = true;
+                    else $b_return = false;
+                }
+            }
+        }
+        else $b_return = $o_user->GetParam("GROUPS");
+        return $b_return;
+    }
+
+    //returns: (bool) validates user's password with input and returns the result
+    //takes: $userID - id of user, $password - user's password
+    public static function isUserPassword($userId, $password) {
+        $userData = CUser::GetByID($userId)->Fetch();
+        $salt = substr($userData['PASSWORD'], 0, (strlen($userData['PASSWORD']) - 32));
+        $realPassword = substr($userData['PASSWORD'], -32);
+        $password = md5($salt.$password);
+        return ($password == $realPassword);
+    }
+
+    //returns: (Array|bool) array of found IBlock elements or false if there are no any ones
+    //takes: $a_params - an array of parameter, may contain such fields as: "filter" - particular array formatted as Bitrix filter for GetList,
+    //"user" - user id (result is filtered by), "iblock" - code of particular IBlock, "inactive" - if it's defined result
+    //includes inactive elements, "sort" - an array formatted as Bitrix sort for GetList
+	public static function get_iblock_elems($a_params, $b_only_true_result = false){
+        $a_elems = $a_filter = array();
+        $a_select = ($a_params["select"])? : array("*");
+        if(is_array($a_params["filter"])) $a_filter = $a_params["filter"];
+        $a_sort = ($a_params["sort"])? : array();
+        if ($a_params["user"]) $a_filter["CREATED_BY"]  = $a_params["user"];
+        if ($a_params["id"]) $a_filter["ID"]  = $a_params["id"];
+        if ($a_params["iblock"]) $a_filter["IBLOCK_CODE"] = $a_params["iblock"];
+        if ($a_params["inactive"]) $a_filter["ACTIVE"] = "";
+        else $a_filter["ACTIVE"] = "Y";
+        $o_elems = \CIBlockElement::GetList($a_sort, $a_filter, false, false, $a_select);
+        $i = 0;
+        while($o_elem = $o_elems->GetNextElement()){
+            $a_elems[$i] = $o_elem->GetFields();
+            if(!$a_params["noprops"]){
+                $a_elems[$i]["PROPERTIES"] = $o_elem->GetProperties();
+                foreach ($a_elems[$i]["PROPERTIES"] as $pid => &$arProp)
+                {
+                    if ($arProp["SORT"] < 0)
+                        continue;
+
+                    if((is_array($arProp["VALUE"]) && count($arProp["VALUE"])>0) ||
+                        (!is_array($arProp["VALUE"]) && strlen($arProp["VALUE"])>0))
+                    {
+                        $a_elems[$i]["DISPLAY_PROPERTIES"][$pid] = \CIBlockFormatProperties::GetDisplayValue($a_elems[$i], $arProp);
+                    }
+                } 
+            }
+            $i++;
+        }
+        if($b_only_true_result && count($a_elems) == 0) return false;
+        if ($a_params["get_one"]) return $a_elems[0];
+        else return $a_elems;
+    }
+
+    //returns: (Array) an array of found properties
+    //takes: $s_iblock_code - code of particular IBlock, if is not defined, return contains all the properties.
+    public static function get_iblock_props($s_iblock_code) {
+        $o_properties = \CIBlockProperty::GetList(array(), array("IBLOCK_CODE" => $s_iblock_code));
+        $a_properties = array();
+        while($a_property = $o_properties->GetNext()){
+            if ($a_property["PROPERTY_TYPE"] == "L") {
+                $o_enums = \CIBlockPropertyEnum::GetList(array(), array("PROPERTY_ID" => $a_property["ID"]));
+                while($a_enum = $o_enums->GetNext()){
+                    $a_property["VALUES"][] = $a_enum;
+                }
+            }
+            $a_properties[$a_property["CODE"]] = $a_property;
+        }
+        return $a_properties;
+    }
+
+    //returns: (Array|int) an array of found property of just it's id
+    //takes: $s_field_val - value of specific property or "false" if to search by property id, $s_property_code - code
+    //of property or it's id (if the first argument equals "false"), $s_iblock_code = code of specific iblock
+    //(might not be defined), $s_xml_id - XML_ID of property (can be defined only if IBlock code if defined)
+    /* [deprecated implementation -->]public static function get_prop_ids($s_field_val = false, $s_property_code = "", $s_iblock_code = "", $s_xml_id = "") {
+        $a_filter = ($s_field_val)? array("VALUE" => $s_field_val, "PROPERTY_CODE" => $s_property_code) : array("ID" => $s_property_code);
+        if ($s_iblock_code) $a_filter["IBLOCK_CODE"] = $s_iblock_code;
+        if ($s_xml_id) $a_filter["XML_ID"] = $s_xml_id;
+        $o_cdb_result = \CIBlockPropertyEnum::GetList(array(), $a_filter, false, false);
+        $a_props = $o_cdb_result->Fetch();
+        return ($s_field_val)? intval($a_props['ID']) : $a_props;
+    }*/
+	public static function get_prop_ids($s_field_val = false, $s_property_code = "", $s_iblock_code = "", $s_xml_id = "") {
+		if($s_field_val === false) $a_filter = array("CODE" => $s_property_code);
+		elseif($s_field_val === 0) $a_filter =array("ID" => $s_property_code);
+		else $a_filter = array("VALUE" => $s_field_val, "CODE" => $s_property_code);
+		if ($s_iblock_code) {
+			if(is_numeric($s_iblock_code)) $a_filter["IBLOCK_ID"] = $s_iblock_code;
+			else $a_filter["IBLOCK_CODE"] = $s_iblock_code;
+		}
+		if ($s_xml_id) $a_filter["XML_ID"] = $s_xml_id;
+		$o_cdb_result = \CIBlockPropertyEnum::GetList(array(), $a_filter, false, false);
+		if($s_field_val) $a_props = $o_cdb_result->Fetch();
+		else {
+			$a_props = array();
+			ea($a_filter);
+			while($a_prop = $o_cdb_result->GetNext()){
+				$a_props[$a_prop["ID"]] = $a_prop;
+			}
+		}
+		return ($s_field_val && $s_field_val > 0)? intval($a_props['ID']) : $a_props;
+	}	
+
+    //returns: (Array|false) ar array of HLblock entries or entity class (or false if both are not found)
+    //takes: $d_id - name of the HLBlock or it's id (if $a_param['block_id'] is defined), $a_params - set of parameters
+    //that can includes the following fields: "block_id" (bool) - whether perform search by HLBlock id, "filter" -
+    // Bitrix formatted filter (use Bitrix documentation for HLBlocks), "return_class" (bool) - whether return entity,
+    //"index" (string) - contains code of particular HLBlock field which will be defined as an array's key;
+    public static function get_highload_block($d_id, $a_params = false) {
+        $a_filter = array();
+        if (!$a_params["block_id"]) {
+            $d_id = self::get_highload_block_id($d_id);
+        }
+        $a_filter = ($a_params['filter'])? : array();
+        $hlblock   = HL\HighloadBlockTable::getById($d_id)->fetch();
+        $entity   = HL\HighloadBlockTable::compileEntity($hlblock);
+        $entity_class = $entity->getDataClass();
+        if ($a_params["return_class"]) return $entity_class;
+        else {
+            $a_entries = array();
+            $rs_result = $entity_class::GetList(array("select" => array("*"), "filter" => $a_filter, "order" => array("ID" => "ASC")));
+            while ($a_entry = $rs_result->Fetch()){
+                if ($a_params["index"]) $a_entries[$a_entry[$a_params["index"]]] = $a_entry;
+                else $a_entries[] = $a_entry;
+            }
+            if(!$a_entries) return false;
+            else return $a_entries;
+        }
+    }
+
+    //returns: (int) id of found HLBlock
+    //takes: $s_hl - name of the required HLBlock;
+    public static function get_highload_block_id($s_hl) {
+        global $DB;
+        $rs_result = $DB->Query("SELECT id FROM `b_hlblock_entity` WHERE name = '".$s_hl."'");
+        $rs_result = $rs_result->Fetch();
+        return $rs_result["id"];
+    }
+
+    public static function get_option($iID, $bWithHTML = false) {
+        $res = CIBlockElement::GetByID($iID);
+        if($ar_res = $res->GetNext()) {
+            if ($bWithHTML)
+                return $ar_res['PREVIEW_TEXT'];
+            else
+                return strip_tags($ar_res['PREVIEW_TEXT']);
+        }
+        else
+            return false;
+    }
+
+    public static function get_file_option($iID, $b_path) {
+        $res = CIBlockElement::GetByID($iID);
+		if($ar_res = $res->GetNext()) {
+			if ($ar_res['PREVIEW_PICTURE'])
+				if(is_array($ar_res["PREVIEW_PICTURE"])){
+					return $ar_res["PREVIEW_PICTURE"];
+				} else {
+					if(intval($ar_res["PREVIEW_PICTURE"]) > 0) {
+						$a_ret = \CFile::GetFileArray($ar_res["PREVIEW_PICTURE"]);
+						if ($b_path) return $a_ret["SRC"];
+						else return $a_ret;
+					} else return false;
+				}
+			else {
+				$res = CIBlockElement::GetProperty(1, $iID, array(), array("CODE"=>"FILE"));
+				$ar_res = $res->GetNext();
+				if(is_array($ar_res["VALUE"])){
+					return $ar_res["VALUE"];
+				} else {
+					if(intval($ar_res["VALUE"]) > 0) {
+						$a_ret = \CFile::GetFileArray($ar_res["VALUE"]);
+						if ($b_path) return $a_ret["SRC"];
+						else return $a_ret;
+					} else return false;
+				}
+			}
+		}
+		else return false;
+    }
+
+    public static function get_name_option($iID, $bStrip = true) {
+        $res = CIBlockElement::GetByID($iID);
+        if($ar_res = $res->GetNext())
+            if ($bStrip)
+                return strip_tags($ar_res['NAME']);
+            else
+                return $ar_res['NAME'];
+        else
+            return false;
+    }
+
+    public static function get_mail_template($iID, $b_html = true) {
+        $sBody = getOption($iID, $b_html);
+        $sTheme = trim(str_replace("Шаблон:", "", getNameOption($iID)));
+        return array("body"=>$sBody, "subject"=>$sTheme);
+    }
+
+    //returns: (bool) whether successful or not was the email sending
+    //takes: $a_message - an array of email parameters, must contain fields: "subject", "sender" - email of sender,
+    // "sender-name", "recipient" - email of recipient.
+    public static function send_mail($a_message, $s_type = false){
+        switch($s_type){
+            default:
+                $s_template = 'templates/mail_template.php';
+        }
+        if(!$a_message['body']){
+			ob_start();
+			ob_implicit_flush(true);
+			require_once($s_template);
+			$a_message["body"] = ob_get_contents();
+			ob_get_clean();
+		}
+        $o_mail = new \cds\classes\mailer($a_message['sender'], $a_message['sender-name']);
+        $b_mail = $o_mail->SendMail($a_message['recipient'], $a_message['subject'], $a_message['body']);
+        return $b_mail;
+    }
+
+    public static function Reindex_Search() {
+        $Result= false;
+        $Result = CSearch::ReIndexAll(true, 60);
+        while(is_array($Result)) {
+            $Result = CSearch::ReIndexAll(true, 60, $Result);
+        }
+        return "Reindex_Search();";
+    }
+
+    //returns: (string|false) url of uploaded file or false if the failure took place
+    //takes: $s_path - local file path, $d_name - file's name, $s_disk_path - path at Yandex Disk
+    public static function send_to_remote_disk($s_path, $d_name, $s_disk_path = false) {
+        global $o_yadisk;
+        $o_yadisk->uploadFile(
+            $s_disk_path,
+            array(
+                'path' => $s_path,
+                'size' => filesize($s_path),
+                'name' => $d_name
+            )
+        );
+
+        if ($s_disk_path) $s_url = $o_yadisk->startPublishing($s_disk_path.$d_name);
+        else return false;
+        //$o_yadisk->delete($s_disk_path.$d_name);			//uncomment while in debug
+        return $s_url;
+    }
+}
+?>
+
+<?//--test construction. do not delete if no reason--?>
+<?//if ($_REQUEST['test'] == "testing") {ea(\cds\classes\main::get_iblock_elems());} ?>

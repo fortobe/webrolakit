@@ -1,0 +1,42 @@
+{
+  "name": "wrk",
+  "description": "FullStack Bitrix development kit template",
+  "main": "index.js",
+  "authors": [
+    "Serge Rola <serge.rola@gmail.com>"
+  ],
+  "license": "ISC",
+  "keywords": [
+    "development",
+    "template",
+    "bitrix",
+    "frontend"
+  ],
+  "homepage": "http://vk.com/rockin_rola",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "frontend/common/libs"
+  ],
+  "dependencies": {
+    "normalize-css": "latest",
+    "sanitize-css": "latest",
+    "jquery": "latest",
+    "jquery-ui": "latest",
+    "bootstrap": "latest",
+    "fancybox": "latest",
+    "slick-carousel": "latest",
+    "jquery-sticky": "latest",
+    "jquery-form-styler": "latest",
+    "jquery-mask-plugin": "jquery-mask#^1.14.0",
+    "jquery-mousewheel": "latest",
+    "nanoscroller": "latest",
+    "malihu-custom-scrollbar-plugin": "latest",
+    "react": "^16.1.0",
+    "babel": "^5.8.38"
+  }
+}

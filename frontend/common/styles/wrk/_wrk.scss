@@ -1,0 +1,1221 @@
+@import "../vars";
+
+//Utilities
+.wrk {
+
+    input:not(.unwrk),
+    select:not(.unwrk),
+    textarea:not(.unwrk)
+    {
+        appearance: none !important;
+        border: 1px solid;
+    }
+
+    input:not(.unwrk) {
+
+        &.number {
+            display: inline-block;
+            margin: 0 $mrgs;
+            vertical-align: middle;
+            width: 5rem;
+        }
+    }
+
+    input[type="checkbox"]:not(.unwrk) {
+        appearance: none !important;
+        background: center center/contain no-repeat;
+        cursor: pointer;
+        display: inline-block;
+        height: $mrgm;
+        overflow: hidden;
+        vertical-align: middle;
+        width: $mrgm;
+
+        & + * {
+            margin: 0;
+            margin-left: $mrgs;
+        }
+
+        &:checked {
+            background-color: $black;
+            background-image: $icon_check_white !important;
+
+            &::before {
+                content: '\2714';
+                display: block;
+                line-height: 1;
+                text-align: center;
+                color: $white;
+            }
+        }
+    }
+
+    input[type="radio"]:not(.unwrk) {
+        appearance: none;
+        background: none;
+        border-radius: 100%;
+        color: inherit;
+        cursor: pointer;
+        display: inline-block;
+        height: $mrgm;
+        padding: 5px;
+        vertical-align: middle;
+        width: $mrgm;
+
+        &:checked::before {
+            background-color: $black;
+            border-radius: inherit;
+            content: '';
+            display: block;
+            height: 100%;
+            width: 100%;
+        }
+    }
+
+    input:not([type="checkbox"]):not([type="radio"]):not(.unwrk),
+    textarea:not(.unwrk),
+    select:not(.unwrk)
+    {
+        background: none;
+        color: inherit;
+        padding: 15px;
+
+        &:not(textarea) {
+            line-height: 1;
+        }
+    }
+
+    select:not(.unwrk) {
+        background: $icon_dropdown calc(100% - 15px) center/10px no-repeat;
+        cursor: pointer;
+        height: auto !important;
+        line-height: initial !important;
+        padding: 15px 35px 15px 20px;
+        position: relative;
+
+        &:disabled,
+        *:disabled {
+            color: $grey;
+        }
+
+        option {
+            overflow: visible;
+
+            &:disabled {
+                color: $grey;
+            }
+        }
+    }
+
+    textarea:not(.unwrk) {
+        min-height: 200px;
+        overflow-y: auto;
+    }
+
+    .abs:not(.unwrk),
+    &.abs,
+    &-abs {
+        position: absolute;
+    }
+
+    .al-center:not(.unwrk),
+    &.al-center,
+    &-al-center {
+        text-align: center;
+    }
+
+    .al-just:not(.unwrk),
+    &.al-just,
+    &-al-just {
+        text-align: justify;
+    }
+
+    .al-left:not(.unwrk),
+    &.al-left,
+    &-al-left {
+        text-align: left;
+    }
+
+    .al-right:not(.unwrk),
+    &.al-right,
+    &-al-right {
+        text-align: right;
+    }
+
+    .attachable:not(.unwrk),
+    &.attachable,
+    &-attachable
+    {
+        padding-bottom: 0;
+        margin-bottom: 0;
+    }
+
+    .attached:not(.unwrk),
+    &.attached,
+    &-attached
+    {
+        padding-top: 0;
+        margin-top: 0;
+    }
+
+    .avatar:not(.unwrk),
+    &.avatar,
+    &-avatar
+    {
+        border: 3px solid;
+        border-radius: 100%;
+
+        img#{&} {
+            object-fit: cover;
+            object-position: center center;
+        }
+
+        &:not(img) {
+            font-size: 0;
+            height: 0;
+            overflow: hidden;
+            padding-top: (170px / 176px) * 100%;
+            position: relative;
+
+            img {
+                bottom: 0;
+                height: 100%;
+                left: 0;
+                object-fit: cover;
+                object-position: center center;
+                position: absolute;
+                right: 0;
+                top: 0;
+                width: 100%;
+            }
+        }
+    }
+
+    .bg-bgrey:not(.unwrk),
+    &.bg-bgrey,
+    &-bg-bgrey {
+        background-color: $bright-grey;
+        color: $white;
+    }
+
+    .bg-black:not(.unwrk),
+    &.bg-black,
+    &-bg-black {
+        background-color: $black;
+        color: $white;
+    }
+
+    .bg-blue:not(.unwrk),
+    &.bg-blue,
+    &-bg-blue {
+        background-color: $blue;
+        color: $white;
+    }
+
+    .bg-brown:not(.unwrk),
+    &.bg-brown,
+    &-bg-brown {
+        background-color: $brown;
+        color: $white;
+    }
+
+    .bg-cyan:not(.unwrk),
+    &.bg-cyan,
+    &-bg-cyan {
+        background-color: $cyan;
+        color: $black;
+    }
+
+    .bg-dblue:not(.unwrk),
+    &.bg-dblue,
+    &-bg-dblue {
+        background-color: $dark-blue;
+        color: $white;
+    }
+
+    .bg-dgreen:not(.unwrk),
+    &.bg-dgreen,
+    &-bg-dgreen {
+        background-color: $dark-green;
+        color: $white;
+    }
+
+    .bg-dgrey:not(.unwrk),
+    &.bg-dgrey,
+    &-bg-dgrey {
+        background-color: $dark-grey;
+        color: $white;
+    }
+
+    .bg-dorange:not(.unwrk),
+    &.bg-dorange,
+    &-bg-dorange {
+        background-color: $dark-orange;
+        color: $white;
+    }
+
+    .bg-dpurple:not(.unwrk),
+    &.bg-dpurple,
+    &-bg-dpurple {
+        background-color: $dark-purple;
+        color: $white;
+    }
+
+    .bg-dred:not(.unwrk),
+    &.bg-dred,
+    &-bg-dred {
+        background-color: $dark-red;
+        color: $white;
+    }
+
+    .bg-dyellow:not(.unwrk),
+    &.bg-dyellow,
+    &-bg-dyellow {
+        background-color: $dark-yellow;
+        color: $black;
+    }
+
+    .bg-golden:not(.unwrk),
+    &.bg-golden,
+    &-bg-golden {
+        background-color: $golden;
+        color: $white;
+    }
+
+    .bg-green:not(.unwrk),
+    &.bg-green,
+    &-bg-green {
+        background-color: $green;
+        color: $white;
+    }
+
+    .bg-grey:not(.unwrk),
+    &.bg-grey,
+    &-bg-grey {
+        background-color: $grey;
+        color: $black;
+    }
+
+    .bg-indigo:not(.unwrk),
+    &.bg-indigo,
+    &-bg-indigo {
+        background-color: $indigo;
+        color: $white;
+    }
+
+    .bg-ocean:not(.unwrk),
+    &.bg-ocean,
+    &-bg-ocean {
+        background-color: $ocean;
+        color: $white;
+    }
+
+    .bg-orange:not(.unwrk),
+    &.bg-orange,
+    &-bg-orange {
+        background-color: $orange;
+        color: $white;
+    }
+
+    .bg-pink:not(.unwrk),
+    &.bg-pink,
+    &-bg-pink {
+        background-color: $pink;
+        color: $white;
+    }
+
+    .bg-purple:not(.unwrk),
+    &.bg-purple,
+    &-bg-purple {
+        background-color: $purple;
+        color: $white;
+    }
+
+    .bg-red:not(.unwrk),
+    &.bg-red,
+    &-bg-red {
+        background-color: $red;
+        color: $white;
+    }
+
+    .bg-white:not(.unwrk),
+    &.bg-white,
+    &-bg-white {
+        background-color: $white;
+        color: $black;
+    }
+
+    .bg-yellow:not(.unwrk),
+    &.bg-yellow,
+    &-bg-yellow {
+        background-color: $yellow;
+        color: $black;
+    }
+
+    .btn:not(.unwrk),
+    &.btn,
+    &-btn {
+        background-color: $grey;
+        border: none;
+        color: inherit;
+        cursor: pointer;
+        display: inline-block;
+        font-size: 1rem;
+        line-height: 1;
+        outline: none;
+        padding: px2rem($mrgxxs) px2rem($mrgxs);
+        text-align: center;
+        text-decoration: none;
+        transition: all .3s ease;
+        vertical-align: middle;
+
+        &:hover {
+            background-color: $black;
+            color: $white;
+        }
+
+        &.conv {
+            max-width: 540px;
+            width: 100%;
+        }
+
+        &:disabled,
+        &.disabled {
+            cursor: not-allowed;
+            opacity: .7;
+        }
+    }
+
+    .centred:not(.unwrk),
+    &.centred,
+    &-centred {
+        display: block;
+        margin: 0 auto !important;
+    }
+
+    .checkbox-label:not(.unwrk),
+    &.checkbox-label,
+    &-checkbox-label
+    {
+        background-color: $yellow;
+        cursor: pointer;
+        display: inline-block;
+        padding: 11px 30px;
+        transition: all .3s ease;
+
+        :checked + & {
+            background: $black $icon_check 15px center/20px no-repeat;
+            color: $white;
+            padding-left: 40px;
+        }
+    }
+
+    .clear:not(.unwrk),
+    &.clear,
+    &-clear {
+        clear: both;
+    }
+
+    .clearfix:not(.unwrk)::before,
+    &.clearfix::before,
+    &-clearfix::before,
+    .clearfix:not(.unwrk)::after,
+    &.clearfix::after,
+    &-clearfix::after
+    {
+        clear: both;
+        content: "";
+        display: block;
+        width: 100%;
+    }
+
+    .container:not(.unwrk),
+    &.container,
+    &-container {
+        position: relative;
+    }
+
+    .d-bl:not(.unwrk),
+    &.d-bl,
+    &-d-bl {
+        display: block;
+    }
+
+    .d-ibl:not(.unwrk),
+    &.d-ibl,
+    &-d-ibl {
+        display: inline-block;
+    }
+
+    .divider:not(.unwrk),
+    &.divider,
+    &-divider {
+        font-size: 0;
+
+        & > * {
+            display: inline-block;
+            font-size: 1rem;
+            vertical-align: baseline;
+        }
+
+        &.va-top > * {
+            vertical-align: top;
+        }
+
+        &.va-middle > * {
+            vertical-align: middle;
+        }
+
+        &.va-bottom > * {
+            vertical-align: bottom;
+        }
+    }
+
+    .flexed:not(.unwrk),
+    &.flexed,
+    &-flexed {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .half:not(.unwrk),
+    &.half,
+    &half {
+        width: 50%;
+    }
+
+    .halved:not(.unwrk),
+    &.halved,
+    &-halved {
+
+        & > * {
+            width: 50%;
+        }
+
+    }
+
+    .iconed:not(.unwrk),
+    &.iconed,
+    &-iconed {
+        position: relative;
+
+        img {
+            left: 0;
+            opacity: 1;
+            position: relative;
+            top: 0;
+            transition: opacity .3s ease;
+
+            &:last-child {
+                position: absolute;
+                opacity: 0;
+            }
+        }
+
+        &:hover {
+
+            img:first-child {
+                opacity: 0;
+            }
+
+            img:last-child {
+                opacity: 1;
+            }
+        }
+    }
+
+    .indent:not(.unwrk),
+    &.indent,
+    &-indent
+    {
+        margin-top: $mrgm;
+    }
+
+    .lc:not(.unwrk),
+    &.lc,
+    &-lc {
+        text-transform: lowercase;
+    }
+
+    .limited:not(.unwrk),
+    &.limited,
+    &-limited {
+        margin: 0 auto;
+        max-width: 1600px;
+    }
+
+    .plained:not(.unwrk),
+    &.plained,
+    &-plained
+    {
+
+        a {
+            @extend .plain;
+        }
+    }
+
+    .quarter:not(.unwrk),
+    &.quarter,
+    &-quarter {
+        width: 25%;
+    }
+
+    .quartered:not(.unwrk),
+    &.quartered,
+    &-quartered {
+
+        & > * {
+            width: 25%;
+        }
+    }
+
+    .rel:not(.unwrk),
+    &.rel,
+    &-rel
+    {
+        position: relative !important;
+    }
+
+    .text-link:not(.unwrk),
+    &.text-link,
+    &-text-link,
+    .text-link:not(.unwrk):hover,
+    &.text-link:hover,
+    &-text-link:hover,
+    .text-link:not(.unwrk):visited,
+    &.text-link:visited,
+    &-text-link:visited,
+    .text-link:not(.unwrk):active,
+    &.text-link:active,
+    &-text-link:active {
+        color: inherit;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .to-bottom:not(.unwrk),
+    &.to-bottom,
+    &-to-bottom {
+        bottom: 0;
+        position: absolute;
+    }
+
+    .to-left:not(.unwrk),
+    &.to-left,
+    &-to-left {
+        float: left;
+        left: 0;
+    }
+
+    .to-right:not(.unwrk),
+    &.to-right,
+    &-to-right {
+        float: right;
+        right: 0;
+    }
+
+    .to-top:not(.unwrk),
+    &.to-top,
+    &-to-top {
+        position: absolute;
+        top: 0;
+    }
+
+    .triole:not(.unwrk),
+    &.triole,
+    &-triole {
+        width: 33.3333%;
+    }
+
+    .trioles:not(.unwrk),
+    &.trioles,
+    &-trioles {
+
+        & > * {
+            width: 33.3333%;
+        }
+    }
+
+    .uc:not(.unwrk),
+    &.uc,
+    &-uc {
+        text-transform: uppercase;
+    }
+
+    .va-bottom:not(.unwrk),
+    &.va-bottom,
+    &-va-bottom {
+        display: inline-block;
+        vertical-align: bottom;
+    }
+
+    .va-middle:not(.unwrk),
+    &.va-middle,
+    &-va-middle {
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    .va-top:not(.unwrk),
+    &.va-top,
+    &-va-top {
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    [data-cont]:not(.unwrk),
+    &[data-cont]
+    {
+
+        &::before {
+            content: attr(data-cont);
+        }
+
+        &::after {
+            content: '...';
+        }
+    }
+}
+
+//Components
+.wrk {
+
+    &.accordeon,
+    &-accordeon {
+        position: relative;
+
+        .trigger,
+        .wrk-trigger {
+            cursor: pointer;
+        }
+
+        .cont,
+        .wrk-cont {
+            overflow: hidden;
+            transition: all .3s ease-in-out;
+        }
+
+        &.static {
+
+            .cont {
+
+                &:not(.active) {
+                    height: 0 !important;
+                }
+            }
+        }
+
+        &:not(.static) {
+
+            .cont {
+                max-height: 0;
+
+                &.active {
+                    max-height: 100vh;
+                }
+            }
+        }
+    }
+
+    &.counter,
+    &-counter
+    {
+        align-items: stretch;
+        display: flex;
+        font-size: px2rem($f_s);
+        justify-content: stretch;
+        height: 45px;
+        text-align: center;
+
+        & > * {
+            user-select: none;
+            padding: 9px 0;
+        }
+
+        input {
+            appearance: none !important;
+            text-align: center;
+
+            &::-webkit-inner-spin-button,
+            &::-webkit-outer-spin-button
+            {
+                appearance: none;
+            }
+        }
+
+
+        .count {
+            text-align: center;
+            font-weight: $f_med;
+            width: $mrgm;
+        }
+
+        .dec,
+        .inc {
+            width: 25px;
+            cursor: pointer;
+            transition: background-color .15s ease;
+
+            &:hover {
+                background-color: $bright-grey;
+            }
+        }
+    }
+
+    &.dropdown,
+    &-dropdown {
+        border: 1px solid $dark-grey;
+        cursor: pointer;
+        padding-right: $mrgl;
+        position: relative;
+
+        &::before {
+            content: attr(data-caption);
+        }
+
+        &::after {
+            background: $icon_dropdown center center/contain no-repeat;
+            content: '';
+            display: block;
+            height: 100%;
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 10px;
+        }
+
+        .options,
+        &_options {
+            bottom: 0;
+            color: $black;
+            display: none;
+            max-width: 400px;
+            min-width: 250px;
+            opacity: 0;
+            position: absolute;
+            padding-top: $mrgs;
+            transform: translateY(100%);
+            transition: all .3s ease;
+            width: max-content;
+            z-index: 1;
+
+            .content,
+            &_content {
+                background: $white;
+                border: 1px solid $dark-grey;
+                padding: $mrgm;
+                position: relative;
+                text-align: center;
+
+                .option {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+
+                    &:not(:first-child) {
+                        margin-top: $mrgxs;
+                    }
+
+                    input[type="checkbox"],
+                    input[type="radio"],
+                    {
+                        flex-shrink: 0;
+                        outline: none;
+                    }
+
+                    .name {
+                        text-align: left;
+                        flex-grow: 1;
+                        margin-left: $mrgxsm;
+                    }
+
+                    .count {
+                        padding-left: $mrgl;
+                        text-align: right;
+                    }
+                }
+
+                .option-list {
+                    max-height: 230px;
+                    overflow-y: auto;
+                }
+
+                .pick,
+                &_pick {
+                    background: inherit;
+                    border-right: 1px solid $dark-grey;
+                    border-top: 1px solid $dark-grey;
+                    display: block;
+                    height: 20px;
+                    margin: 0 25%;
+                    position: absolute;
+                    top: 0;
+                    transform: translateY(calc(-50% - 1px)) rotate(-45deg);
+                    width: 20px;
+                    z-index: 1;
+                }
+            }
+        }
+
+        &.open {
+
+            &::after {
+                transform: rotate(180deg);
+            }
+
+            .options {
+                display: block;
+                opacity: 1;
+            }
+        }
+
+        &.applied {
+            padding-right: $mrgxl;
+
+            &::after {
+                content: none;
+            }
+
+            &::before {
+                content: attr(data-applied-caption);
+            }
+
+            .reset {
+                background: $icon_close center center/contain no-repeat;
+                border-left: 2px solid;
+                display: block;
+                height: 100%;
+                padding-right: $mrgl;
+                position: absolute;
+                right: 0;
+                top: 0;
+                z-index: 1;
+            }
+        }
+    }
+
+    &.gallery-item,
+    &-gallery-item {
+        display: block;
+        overflow: hidden;
+        position: relative;
+
+        &::after {
+            @include stretch;
+            background: center center no-repeat;
+            content: '';
+            transition: background .3s ease;
+        }
+
+        &:hover {
+
+            &::after {
+                background-color: rgba($black, .5);
+            }
+
+            img {
+                transform: scale(1.05);
+            }
+        }
+
+        &.media {
+
+            &::after {
+                background-size: 25%;
+            }
+        }
+
+        img {
+            transition: transform .3s ease-out;
+        }
+    }
+
+    &.grid,
+    &-grid {
+        display: flex;
+        margin: 0 -15px (-$mrgm);
+
+        .cell,
+        &_cell {
+            padding: 0 15px $mrgm;
+
+            .item,
+            &-item {
+                display: block;
+                text-decoration: none;
+            }
+        }
+    }
+
+    .inp-group:not(.unwrk),
+    &.inp-group,
+    &-inp-group
+    {
+        margin-bottom: $mrgl;
+
+        input:not([type="checkbox"]):not([type="radio"]),
+        textarea,
+        select
+        {
+            display: block;
+            width: 100%;
+        }
+
+        label {
+            display: block;
+            font-size: px2rem($f_s);
+            margin-bottom: $mrgs;
+        }
+
+        &.checkable {
+
+            & > * {
+                display: inline-block;
+                vertical-align: middle;
+            }
+
+            input + * {
+                margin-left: $mrgs;
+            }
+
+            label {
+                margin-bottom: 0;
+            }
+        }
+    }
+
+    &.inp-line,
+    &-inp-line
+    {
+        margin-bottom: $mrgl;
+    }
+
+    &.opt-conf,
+    &-opt-conf {
+        position: relative;
+
+        .oc-sect-nav {
+            cursor: pointer;
+        }
+
+        .oc-cont,
+        .wrk-oc-cont {
+            min-height: min-content;
+            position: relative;
+        }
+
+        [data-option]:not(.oc-option) {
+                left: 0;
+                opacity: 0;
+                position: absolute;
+                top: 0;
+                transition: opacity .3s ease;
+
+                &.active {
+                    opacity: 1;
+                    z-index: 1;
+                }
+
+                &:first-of-type {
+                    position: relative;
+                }
+            }
+
+
+        [data-section]:not(.oc-sect-nav) {
+            left: 0;
+            opacity: 0;
+            position: absolute;
+            top: 0;
+            transition: opacity .3s ease;
+
+            &.active {
+                opacity: 1;
+                z-index: 1;
+            }
+
+            &:first-child{
+                position: relative;
+            }
+        }
+
+        .oc-options {
+            position: relative;
+
+            .oc-option,
+            .wrk-oc-option {
+                cursor: pointer;
+            }
+        }
+    }
+
+    &.parallax,
+    &-parallax {
+        overflow: auto;
+        z-index: 1;
+
+        .back-layer,
+        &_back-layer,
+        .mid-layer,
+        &_mid-layer {
+            left: 0;
+            overflow: hidden;
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 100%;
+            z-index: 0;
+        }
+
+        .front-layer,
+        &_front-layer {
+            min-height: 100vh;
+            position: relative;
+            z-index: 3;
+        }
+    }
+
+    &.slider,
+    &-slider {
+        position: relative;
+
+        .slide,
+        .wrk-slide {
+
+            img
+            {
+                width: 100%;
+            }
+        }
+
+        ul.slider-dots,
+        ul.wrk-slider-dots,
+        .slider-dots > ul,
+        .wrk-slider-dots > ul,
+        {
+            line-height: 1;
+            @include compile_menu(center);
+
+                li {
+                    background-color: $grey;
+                    cursor: pointer;
+                    display: inline-block;
+                    height: .75rem;
+                    margin: 0 10px;
+                    max-width: $mrgxl;
+                    overflow: hidden;
+                    position: relative;
+                    transition: background-color .3s ease;
+                    width: .75rem;
+
+                    &:hover,
+                    &.slick-active {
+                        background-color: $yellow;
+                    }
+
+                    button {
+                        font-size: 0;
+                        height: 100%;
+                        visibility: hidden;
+                        width: 100%;
+                    }
+                }
+            }
+
+        .slider-controls,
+        .wrk-slider-controls {
+
+            & > * {
+                position: absolute;
+                cursor: pointer;
+
+                &.prev,
+                .wrk-prev
+                {
+                    left: 0;
+                }
+
+                &.next,
+                .wrk-prev {
+                    right: 0;
+                }
+            }
+        }
+    }
+
+    &.tabs,
+    &-tabs {
+
+        .tabs-list,
+        &-tabs-list,
+        {
+            @include get_flex(flex-start, flex-end);
+
+            .tab,
+            &-tab {
+                cursor: pointer;
+            }
+        }
+
+        .tabs-cont,
+        &-tabs-cont {
+            overflow: hidden;
+            position: relative;
+
+            [data-tab] {
+
+                &.active {
+                    opacity: 1;
+                    position: relative;
+                    transition: opacity .3s ease;
+                    z-index: 1;
+                }
+
+                &:not(.active) {
+                    left: 0;
+                    opacity: 0;
+                    position: absolute;
+                    top: 0;
+                }
+            }
+        }
+    }
+
+    &.video-frame,
+    &-video-frame {
+        font-size: 0;
+
+        & > a,
+        a#{&} {
+            display: block;
+            position: relative;
+
+            &::after {
+                @include stretch;
+                background: rgba($black, .5) center center/30% no-repeat;
+                content: '';
+                opacity: .5;
+                transition: opacity .3s ease;
+                z-index: 1;
+            }
+
+            &:hover {
+
+                &::after {
+                    opacity: 1;
+                }
+            }
+        }
+
+        img,
+        video {
+            width: 100%;
+        }
+    }
+
+    &.video-player,
+    &-video-player {
+
+    }
+}
