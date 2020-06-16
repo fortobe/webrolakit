@@ -1,0 +1,9 @@
+.git
+.idea
+
+node_modules
+frontend/common/libs
+
+www/assets
+www/**/*.*
+!www/local
