@@ -1,6 +1,6 @@
 {
   "name": "wrk",
-  "version": "1.0.0",
+  "version": "2.1.0",
   "description": "Startup kit for Bitrix fullstack development",
   "main": "index.js",
   "scripts": {
@@ -35,8 +35,9 @@
     "gulp": "^4.0.2",
     "gulp-autoprefixer": "^6.1.0",
     "gulp-babel": "^8.0.0",
+    "gulp-changed": "^4.0.2",
     "gulp-file-include": "^2.1.1",
-    "gulp-imagemin": "^6.1.0",
+    "gulp-imagemin": "^6.2.0",
     "gulp-jsx": "^2.0.1",
     "gulp-minifier": "^2.0.0",
     "gulp-notify": "latest",
