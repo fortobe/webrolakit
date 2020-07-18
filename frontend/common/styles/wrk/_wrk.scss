@@ -767,6 +767,7 @@
     &-dropdown {
         border: 1px solid $dark-grey;
         cursor: pointer;
+        display: inline-block;
         padding-right: $mrgl;
         position: relative;
 
@@ -1097,31 +1098,31 @@
             line-height: 1;
             @include compile_menu(center);
 
-                li {
-                    background-color: $grey;
-                    cursor: pointer;
-                    display: inline-block;
-                    height: .75rem;
-                    margin: 0 10px;
-                    max-width: $mrgxl;
-                    overflow: hidden;
-                    position: relative;
-                    transition: background-color .3s ease;
-                    width: .75rem;
+            li {
+                background-color: $grey;
+                cursor: pointer;
+                display: inline-block;
+                height: .75rem;
+                margin: 0 10px;
+                max-width: $mrgxl;
+                overflow: hidden;
+                position: relative;
+                transition: background-color .3s ease;
+                width: .75rem;
 
-                    &:hover,
-                    &.slick-active {
-                        background-color: $yellow;
-                    }
+                &:hover,
+                &.slick-active {
+                    background-color: $yellow;
+                }
 
-                    button {
-                        font-size: 0;
-                        height: 100%;
-                        visibility: hidden;
-                        width: 100%;
-                    }
+                button {
+                    font-size: 0;
+                    height: 100%;
+                    visibility: hidden;
+                    width: 100%;
                 }
             }
+        }
 
         .slider-controls,
         .wrk-slider-controls {

@@ -13,7 +13,7 @@ export function autoChange(element) {
         const $this = $(element),
             $inputs = $this.find('input');
         let ix = $inputs.index($inputs.filter(':checked'));
-        if (ix < $inputs.length-1) ix++;
+        if (ix < $inputs.length - 1) ix++;
         else ix = 0;
         $inputs.eq(ix).siblings('label').trigger('click');
     }
@@ -47,7 +47,7 @@ export function deferLoadIMG() {
     });
     $(document).on('scroll', function (e) {
         $('.defload').each(function () {
-            if($(this).offset().top < $(document).scrollTop() + $(window).height() * 1.5) {
+            if ($(this).offset().top < $(document).scrollTop() + $(window).height() * 1.5) {
                 $(this).attr('src', $(this).data('load-src'));
                 $(this).attr('srcset', $(this).data('load-srcset'));
                 $(this).removeClass('defload');
@@ -64,14 +64,14 @@ export function formatPrice(price = 0) {
     return price.toString().replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ');
 }
 
-export function getBrowserName(){
+export function getBrowserName() {
     const ua = navigator.userAgent;
     let className;
     if (ua.search(/Chrome/) !== -1) className = 'br_google_chrome';
     if (ua.search(/Firefox/) !== -1) className = 'br_firefox';
-    if (ua.search(/Opera/) !== -1) className =  'br_opera';
-    if (ua.search(/Safari/) !== -1) className =  'br_safari';
-    if (ua.search(/MSIE/) !== -1) className =  'br_internet_explorer';
+    if (ua.search(/Opera/) !== -1) className = 'br_opera';
+    if (ua.search(/Safari/) !== -1) className = 'br_safari';
+    if (ua.search(/MSIE/) !== -1) className = 'br_internet_explorer';
     return className
 }
 
@@ -118,6 +118,10 @@ export function getDimentions() {
         $(window).width() <= $("body").data("breakpoint") : $(window).width() < 768;
 }
 
+export function getErrorLog(message) {
+    return $('<div></div>').addClass('error-log').text(message);
+}
+
 export function getScrollbarWidth() {
     const div = document.createElement('div');
     div.style.overflowY = 'scroll';
@@ -130,7 +134,8 @@ export function getScrollbarWidth() {
 
 export function getOptions() {
     if (!('get' in this.dataset) || !('url' in this.dataset)) return;
-    const _this = this, $select = $(_this).closest('form').find(`select[name="${_this.dataset.target || _this.dataset.get}"]`);
+    const _this = this,
+        $select = $(_this).closest('form').find(`select[name="${_this.dataset.target || _this.dataset.get}"]`);
     $(_this).closest('.row').addClass('loading');
     $.ajax({
         url: this.dataset.url,
@@ -189,8 +194,12 @@ export function priceToInt(val) {
 
 export function refreshPage(time, redirect) {
     time *= 1000;
-    if (!redirect) setTimeout(function(){location.reload();}, time);
-    else setTimeout(function(){location.assign(redirect);}, time);
+    if (!redirect) setTimeout(function () {
+        location.reload();
+    }, time);
+    else setTimeout(function () {
+        location.assign(redirect);
+    }, time);
 }
 
 export function setCookie(cname, cvalue, exdays) {
@@ -221,8 +230,8 @@ export function transJS(response, responseHandler) {
 
 export function translit(str) {
     const rus = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
-    const tr = ['a','b','v','g','d','e','yo','zh','z','i','y','k','l','m','n','o','p','r','s','t','u','f','kh','ts','tch','sh','sch','','i','','e','yu','ya'];
-    return str.toLowerCase().split('').map((e,i) => {
+    const tr = ['a', 'b', 'v', 'g', 'd', 'e', 'yo', 'zh', 'z', 'i', 'y', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 's', 't', 'u', 'f', 'kh', 'ts', 'tch', 'sh', 'sch', '', 'i', '', 'e', 'yu', 'ya'];
+    return str.toLowerCase().split('').map((e, i) => {
         if (e === ' ') return '_';
         if (rus.includes(e)) return tr[rus.indexOf(e)];
         if (e.includes(e)) return e;

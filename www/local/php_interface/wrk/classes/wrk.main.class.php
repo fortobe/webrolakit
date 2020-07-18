@@ -15,6 +15,7 @@ class main
 
     const PHONE_EXP = "/^(\+?[0-9]{1,3})?(\s?\(?[0-9]{2,4}\)?\s?)?([0-9]{2,4}-?\s?){1,3}$/";
     const EMAIL_EXP = "/^[a-zA-Z0-9-\._]+@([-a-z0-9]+\.)+[a-z]{2,4}$/";
+    const STATUS_404 = 404;
 
     private static $response = array("status" => "error", "msg" => array());
 
@@ -200,6 +201,10 @@ class main
         return ($password == $realPassword);
     }
 
+    public static function get_base_price($id, $fallback = '') {
+        return \CPrice::GetBasePrice($id)?:$fallback;
+    }
+
     public static function get_file($file) {
         return \CFile::GetFileArray($file);
     }
@@ -230,6 +235,26 @@ class main
             }
         }
         return $images;
+    }
+
+    public static function get_iblocks($a_params, $b_get_files = true)
+    {
+        $a_iblocks = [];
+        if (is_array($a_params["filter"])) $a_filter = $a_params["filter"];
+        $a_sort = ($a_params["sort"]) ?: ['SORT' => 'ASC', 'ID' => "ASC"];
+        if ($a_params["id"]) $a_filter["ID"] = $a_params["id"];
+        if ($a_params["code"]) $a_filter["CODE"] = $a_params["code"];
+        if ($a_params["inactive"]) $a_filter["ACTIVE"] = "";
+        else $a_filter["ACTIVE"] = "Y";
+        $o_iblocks = \CIBlock::GetList($a_sort, $a_filter, $a_params['count']);
+        while ($a_iblock = $o_iblocks->GetNext()) {
+            if ($b_get_files) {
+                $a_iblock['PICTURE'] = \CFile::GetFileArray($a_iblock['PICTURE']);
+            }
+            $a_params['index'] ? $a_iblocks[$a_iblock[$a_params['index']]] = $a_iblock : $a_iblocks[] = $a_iblock;
+        }
+        if ($a_params["only"] || $a_params["id"]) return $a_iblocks[0];
+        else return $a_iblocks;
     }
 
     //returns: (Array|bool) array of found IBlock elements or false if there are no any ones
@@ -275,10 +300,11 @@ class main
         else return $a_elems;
     }
 
-    public static function get_iblock_sections($a_params)
+    public static function get_iblock_sections($a_params, $b_get_files = false, $b_get_user_fields = false)
     {
         $a_sections = [];
         $a_select = ($a_params["select"]) ?: ['*'];
+        if ($b_get_user_fields) $a_select[] = 'UF_*';
         if (is_array($a_params["filter"])) $a_filter = $a_params["filter"];
         $a_sort = ($a_params["sort"]) ?: ['SORT' => 'ASC', 'ID' => "ASC"];
         if ($a_params["user"]) $a_filter["CREATED_BY"] = $a_params["user"];
@@ -288,12 +314,13 @@ class main
         else $a_filter["ACTIVE"] = "Y";
         $o_sections = \CIBlockSection::GetList($a_sort, $a_filter, $a_params['count']?:false, $a_select);
         while ($a_section = $o_sections->GetNext()) {
-            if ($a_params['get_files']) {
+            if ($b_get_files) {
                 $a_section['PICTURE'] = \CFile::GetFileArray($a_section['PICTURE']);
+                $a_section['DETAIL_PICTURE'] = \CFile::GetFileArray($a_section['DETAIL_PICTURE']);
             }
             $a_params['index'] ? $a_sections[$a_section[$a_params['index']]] = $a_section : $a_sections[] = $a_section;
         }
-        if ($a_params["only"]) return $a_sections[0];
+        if ($a_params["only"] || $a_params["id"]) return $a_sections[0];
         else return $a_sections;
     }
 
@@ -487,6 +514,15 @@ class main
         $o_mail = new \wrk\classes\mailer($a_message['sender'], $a_message['sender-name']);
         $b_mail = $o_mail->SendMail($a_message['recipient'], $a_message['subject'], $a_message['body']);
         return $b_mail;
+    }
+
+    public static function set_status($m_status = self::STATUS_404) {
+        switch ($m_status) {
+            case 404:
+                \CHTTP::SetStatus("404 Not Found");
+                define('ERROR_404', 'Y');
+                break;
+        }
     }
 
     public static function Reindex_Search()

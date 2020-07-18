@@ -4,6 +4,7 @@
     box-sizing: border-box;
     padding: 0;
     margin: 0;
+    outline: none !important;
 }
 
 :root, body {
@@ -32,6 +33,21 @@ article {
 
 b, strong {
     font-weight: 500;
+}
+
+body {
+
+    &.backdrop {
+        height: 100%;
+
+        &::before {
+            @include stretch(fixed);
+            background: rgba($black, .5);
+            content: '';
+            height: 200vh;
+            z-index: 100;
+        }
+    }
 }
 
 h1, h2, h3, h4, h5, h6,
@@ -74,7 +90,7 @@ video {
     margin-top: $mrgmp + $mrgm;
 
     .block-link {
-        width: 250px;
+        width: 270px;
 
         .desc {
             margin-top: $mrgmp;
@@ -343,21 +359,6 @@ video {
             overflow: hidden;
         }
     }
-
-    &.sets {
-
-        .item {
-
-            .desc {
-                margin-top: $mrgm;
-
-                a {
-                    text-decoration: none;
-                    font-weight: bold;
-                }
-            }
-        }
-    }
 }
 
 .loading {
@@ -449,5 +450,12 @@ a.video-frame {
 
     &::after {
         content: '.-';
+    }
+
+    &.discounted {
+
+        &::before {
+            text-decoration: line-through;
+        }
     }
 }

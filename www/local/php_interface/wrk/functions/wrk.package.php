@@ -116,20 +116,14 @@ function format_db_date($s_in)
  * @param int|string $i_num
  * @return string
  */
-function format_num($i_num = 0)
+function format_num($i_num = 0, $b_decimals = false)
 {
     if (!is_numeric($i_num)) {
         return $i_num;
     } else {
-        $i_nem_num = '';
-        $a_num = array_reverse(str_split($i_num));
-        foreach ($a_num as $i_key => $i_val) {
-            $i_nem_num = $i_val . $i_nem_num;
-            if (($i_val + 1) % 3 === 0) {
-                $i_nem_num = ' ' . $i_nem_num;
-            }
-        }
-        return $i_nem_num;
+        if (!$b_decimals) $i_num = preg_replace('/([\.,].*)$/', '', $i_num);
+        $i_num = preg_replace("/(\d)(?=(\d\d\d)+([^\d]|$))/", "$1 ",  $i_num);
+        return $i_num;
     }
 }
 
@@ -140,9 +134,9 @@ function format_num($i_num = 0)
  * @param string $s_postfix - currency postfix
  * @return string
  */
-function format_price($s_in, $s_postfix = '.-')
+function format_price($s_in, $b_decimals = true,  $s_postfix = '.-')
 {
-    return (format_num(trim($s_in)) ?: '0') . $s_postfix;
+    return (format_num(trim($s_in), $b_decimals) ?: '0') . $s_postfix;
 }
 
 /**
@@ -190,6 +184,10 @@ function get_declensions($i_count, $a_desc, $b_return_array = false)
     } else return false;
     if ($b_return_array) return array("count" => $i_count, "desc" => $s_desc);
     else return $i_count . " " . $s_desc;
+}
+
+function get_discounted_price($m_price, $i_discount = 0) {
+    return +str_replace(' ', '', $m_price) * ($i_discount > 0 ? 1 - $i_discount / 100 : 1);
 }
 
 /**
@@ -319,6 +317,12 @@ function get_random_string($length)
         $res .= $chars[rand(0, strlen($chars))];
     }
     return $res;
+}
+
+function get_patcher($s_hole) {
+    return function ($s_cloth, $s_patch) use ($s_hole) {
+        return str_replace($s_hole, $s_patch, $s_cloth);
+    };
 }
 
 /**

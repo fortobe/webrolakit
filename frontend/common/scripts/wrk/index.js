@@ -7,7 +7,7 @@ import {
 export function initAccordeonPlugin($selector = $(".wrk.accordeon, .wrk-accordeon")) {
     if ($selector.length > 0) {
 
-        $selector.filter('.static').find('.cont').each(function(){
+        $selector.filter('.static').find('.cont').each(function () {
             $(this).css('height', $(this).hasClass('active') ? this.offsetHeight : this.scrollHeight);
         });
 
@@ -28,6 +28,7 @@ export function initAccordeonPlugin($selector = $(".wrk.accordeon, .wrk-accordeo
         });
     }
 }
+
 //ajax-forms
 export function initAjaxFormsPlugin(ajaxFormHandler, selector = '.wrk.ajax-form', urlPrefix = "", urlPostfix = "") {
     if ($(selector).length > 0) {
@@ -74,7 +75,7 @@ export function initAjaxFormsPlugin(ajaxFormHandler, selector = '.wrk.ajax-form'
                     error: function (result) {
                         if (window.debugMode) console.log("WRK_ERROR: " + result.responseText);
                     },
-                    complete: function() {
+                    complete: function () {
                         $button.removeAttr('disabled');
                     },
                 };
@@ -93,6 +94,7 @@ export function initAjaxFormsPlugin(ajaxFormHandler, selector = '.wrk.ajax-form'
         });
     }
 }
+
 //mask
 export function initMaskPlugin() {
     $('.wrk.masked-phone, .wrk-masked-phone').mask("8-000-000-0000");
@@ -103,6 +105,7 @@ export function initMaskPlugin() {
     $('.wrk.masked-phone-mobile, .wrk-masked-phone-mobile').mask("8(000)000-00-00");
     $.applyDataMask();
 }
+
 export function altPhoneMask(selector = '.wrk.masked-phone-alt') {
     const $selector = typeof selector === 'string' ? $(selector) : selector;
     const options = {
@@ -116,6 +119,7 @@ export function altPhoneMask(selector = '.wrk.masked-phone-alt') {
 
     $selector.mask('+7 (000) 000-00-00', options);
 }
+
 //modal
 export function initModalPlugin() {
     const defaultSettings = {
@@ -172,6 +176,7 @@ export function initModalPlugin() {
         $.fancybox.close();
     });
 }
+
 export function modalMsg(data = {showTime: 0,}) {
     if ($('#modal-msg.wrk').length > 0) {
         let caption = (data.caption) ? data.caption : (data.status === "success") ? "Успешно!" : "Ошибка!";
@@ -188,6 +193,7 @@ export function modalMsg(data = {showTime: 0,}) {
         }
     }
 }
+
 export function setModal(selector = '.modal-trigger', settings = false) {
     const defSettings = {
         baseClass: 'wrk-modal',
@@ -207,6 +213,7 @@ export function setModal(selector = '.modal-trigger', settings = false) {
         $.fancybox.open(settings);
     });
 }
+
 //parallax
 export function initParallaxPlugin() {
 
@@ -237,6 +244,7 @@ export function initParallaxPlugin() {
         });
     }
 }
+
 //scroll
 export function initScrollPlugin() {
     $(document).on('click', '.wrk.light-scroll, .wrk-light-scroll', function (e) {
@@ -250,6 +258,7 @@ export function initScrollPlugin() {
         return false;
     });
 }
+
 //slider
 export function initSliderPlugin(settings = {}) {
     const $selector = $(settings.selector || '.wrk.slider, .wrk-slider');
@@ -331,36 +340,36 @@ export function initSliderPlugin(settings = {}) {
             }
             if (settings.dots === true) {
                 if (!settings.appendDots) {
-                $(this).append($('<div>').addClass(classPrefix + 'slider-dots'));
-                settings.appendDots = $(this).find('.' + classPrefix + 'slider-dots');
-                settings.dotsClass = classPrefix + 'slider-dots-list';
+                    $(this).append($('<div>').addClass(classPrefix + 'slider-dots'));
+                    settings.appendDots = $(this).find('.' + classPrefix + 'slider-dots');
+                    settings.dotsClass = classPrefix + 'slider-dots-list';
                 } else {
                     const $appendable = $(this).find(settings.appendDots);
                     if ($appendable.length) settings.appendDots = $appendable;
-                    settings.dotsClass =  classPrefix + 'slider-dots';
+                    settings.dotsClass = classPrefix + 'slider-dots';
                 }
             }
         }
 
         try {
-        if (!!$(this).data("events")) {
+            if (!!$(this).data("events")) {
                 let events = $(this).data("events");
                 if (typeof events === 'string') {
                     events = JSON.parse(events);
                 }
-            for (let event in events) {
-                if (!events.hasOwnProperty(event)) {
-                    continue;
-                }
-                switch (event) {
-                    case "init":
-                        events[event]($slider);
-                        break;
-                    default:
+                for (let event in events) {
+                    if (!events.hasOwnProperty(event)) {
+                        continue;
+                    }
+                    switch (event) {
+                        case "init":
+                            events[event]($slider);
+                            break;
+                        default:
                             $slider.on(event, events[event].bind(this));
+                    }
                 }
             }
-        }
         } catch (e) {
             console.error('WRK Slider: cannot retrieve events: ' + e);
         }
@@ -377,6 +386,7 @@ export function initSliderPlugin(settings = {}) {
         }
     });
 }
+
 export function setSlider($slider = $('.wrk.slider, .wrk-slider'), prefs = {}, init = () => {
 }) {
     prefs = Object.assign({
@@ -394,14 +404,17 @@ export function setSlider($slider = $('.wrk.slider, .wrk-slider'), prefs = {}, i
     }).slick(prefs);
     return $slider.find('.slider-container');
 }
+
 //sticky
 export function initStickyPlugin() {
     $(".wrk.sticky, .wrk-sticky").sticky({topSpacing: 0,});
 }
+
 export function setSticky($selector = '.sticky', settings = {topSpacing: 0,}) {
     if (typeof $selector === 'string') $selector = $($selector);
     $selector.sticky(settings);
 }
+
 //text-scroller
 export function setToggleScroller($selector = '.wrk.text-scroll, .wrk-text-scroller') {
     $(document).on('click', $selector + ' .dismiss', function () {
@@ -424,6 +437,7 @@ export function setToggleScroller($selector = '.wrk.text-scroll, .wrk-text-scrol
     };
     scrollText();
 }
+
 //init
 export function initPlugins(selector = 'meta[name="plugins"]') {
     let plugins = null;
@@ -463,6 +477,7 @@ export function initPlugins(selector = 'meta[name="plugins"]') {
         }
     }
 }
+
 //Under development...
 export function starsBG($selector) {
     if (!$selector || !$selector.length) return;
@@ -493,6 +508,7 @@ export function starsBG($selector) {
     }
     $selector.append($container.append($('<div>').addClass('canvas').append(stars)));
 }
+
 export function initOptionConfigurator() {
 
     $(document).on('click', '.wrk .oc-option', function (e) {
@@ -525,6 +541,7 @@ export function initOptionConfigurator() {
         $conf.find(section).addClass('active');
     });
 }
+
 export function initTabs(selector = '.wrk .tab:not(.unwrk), .wrk-tab') {
     $(document).on('click', selector, function (e) {
         e.preventDefault();
@@ -536,43 +553,55 @@ export function initTabs(selector = '.wrk .tab:not(.unwrk), .wrk-tab') {
         $content.find(`[data-tab="${$this.data('tab')}"]`).addClass('active');
     });
 }
+
 export function initDropDowns() {
     if ($('.wrk.dropdown, .wrk-dropdown').length) {
-    $(document).on('click', function (e) {
+        $(document).on('click', function (e) {
             const $this = e.target.classList.contains('dropdown') ? $(e.target) : $(e.target).closest('.dropdown');
-        if (!$this.length) {
+            if (!$this.length) {
                 $('.dropdown.open').removeClass('open');
-            return;
-        }
-        const $options = $this.find('.options');
-        if (e.target === $this.get(0)) $this.toggleClass('open');
-            $('.dropdown.open').not($this).removeClass('open');
-        if ($this.hasClass('open')) {
-            if ($this.get(0).getBoundingClientRect().left > $(window).width() / 2) {
-                $options.css({
-                    right: 0,
-                    left: 'auto',
-                });
-                $options.find('.pick').css({
-                    right: 0,
-                    left: 'auto',
-                });
-            } else {
-                $options.css({
-                    left: 0,
-                    right: 'auto',
-                });
-                $options.find('.pick').css({
-                    left: 0,
-                    right: 'auto',
-                });
+                return;
             }
-        }
-    });
+            const $options = $this.find('.options');
+            if (e.target === $this.get(0)) $this.toggleClass('open');
+            $('.dropdown.open').not($this).removeClass('open');
+            if ($this.hasClass('open')) {
+                if ($(window).width() > 575) {
+                    if ($this.get(0).getBoundingClientRect().left > $(window).width() / 2) {
+                        $options.css({
+                            right: 0,
+                        });
+                        $options.find('.pick').css({
+                            right: 0,
+                        });
+                    } else {
+                        $options.css({
+                            left: 0,
+                        });
+                        $options.find('.pick').css({
+                            left: 0,
+                        });
+                    }
+                } else {
+                    $options.css({
+                        left: 'calc((100% - 250px) / 2)',
+                    });
+                    $options.find('.pick').css({
+                        right: 0,
+                        left: 0,
+                        marginLeft: 'auto',
+                        marginRight: 'auto',
+                    });
+                }
+            } else {
+                $options.removeAttr('style');
+                $options.find('.pick').removeAttr('style');
+            }
+        });
 
         $(document).on('click', '.dropdown .reset', function () {
             $(this).closest('.dropdown').removeClass('applied').find(':checked').prop('checked', false);
-            $(this).closest('.dropdown').find('[data-default]').each(function() {
+            $(this).closest('.dropdown').find('[data-default]').each(function () {
                 switch (this.tagName) {
                     case 'INPUT':
                         $(this).prop('checked', true);
@@ -585,31 +614,32 @@ export function initDropDowns() {
                         $(this).addClass('.active');
                 }
             });
-        $(this).closest('form').trigger('submit');
-    });
+            $(this).closest('form').trigger('submit');
+        });
 
-        $(document).on('click', '.dropdown .apply', function() {
+        $(document).on('click', '.dropdown .apply', function () {
             const $dropdown = $(this).closest('.dropdown');
             const applied = [];
             $dropdown.find(':checked, :selected, .active').each(function () {
-                !!$(this).attr('value') && applied.push($(this).attr('value'));
+                !!$(this).attr('data-caption') && applied.push($(this).attr('data-caption'));
             });
             const val = (applied.length > 1 ? applied.length : applied[0]);
             $dropdown.data('applied-text') ? $dropdown.attr('data-applied-caption', $dropdown.data('applied-text') + val) : $dropdown.attr('data-applied-caption', val);
             $dropdown.removeClass('open').addClass('applied');
         });
+    }
 }
-}
+
 export function initCounters(dispatchEvent = false) {
     $(document).on('click', '.wrk.counter .inc, .wrk.counter .dec, .wrk-counter .inc, .wrk-counter.dec', function () {
-        const counter  = $(this).closest('.counter, .wrk-counter').find('.count').get(0);
+        const counter = $(this).closest('.counter, .wrk-counter').find('.count').get(0);
         if (!counter) return;
         let prop = counter.tagName === 'INPUT' ? 'value' : 'innerHtml';
         const factor = this.classList.contains('inc') ? 1 : -1;
         if ((counter.min || counter.dataset.min) === counter[prop] && factor < 0) return;
         counter[prop] = +counter[prop] + factor;
         if (dispatchEvent) {
-            const event = new Event("input", { bubbles: true,});
+            const event = new Event("input", {bubbles: true,});
             const tracker = counter._valueTracker;
             if (tracker) {
                 tracker.setValue(counter.value);
@@ -623,6 +653,7 @@ export function initCounters(dispatchEvent = false) {
         if (!!min && this.value < min) this.value = min;
     });
 }
+
 export function initVideoPlayer() {
     $(document).on('click', '.wrk.video-player .option, .wrk-videoplayer .option', function (e) {
         if (e.currentTarget.tagName === 'A') e.preventDefault();

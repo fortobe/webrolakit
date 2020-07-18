@@ -86,7 +86,6 @@ gulp.task('css:plugins', function () {
             minify: true,
             collapseWhitespace: true,
             conservativeCollapse: true,
-            minifyJS: true,
             minifyCSS: true,
             getKeptComment: function (content) {
                 let m = content.match(/\/\*![\s\S]*?\*\//img);
