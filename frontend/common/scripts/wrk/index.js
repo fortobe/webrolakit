@@ -95,6 +95,108 @@ export function initAjaxFormsPlugin(ajaxFormHandler, selector = '.wrk.ajax-form'
     }
 }
 
+//counters
+export function initCountersPlugin(dispatchEvent = false) {
+    $(document).on('click', '.wrk.counter .inc, .wrk.counter .dec, .wrk-counter .inc, .wrk-counter.dec', function () {
+        const counter = $(this).closest('.counter, .wrk-counter').find('.count').get(0);
+        if (!counter) return;
+        let prop = counter.tagName === 'INPUT' ? 'value' : 'innerHtml';
+        const factor = this.classList.contains('inc') ? 1 : -1;
+        if ((counter.min || counter.dataset.min) === counter[prop] && factor < 0) return;
+        counter[prop] = +counter[prop] + factor;
+        if (dispatchEvent) {
+            const event = new Event("input", {bubbles: true,});
+            const tracker = counter._valueTracker;
+            if (tracker) {
+                tracker.setValue(counter.value);
+            }
+            counter.dispatchEvent(event);
+        }
+    });
+
+    $(document).on('change', '.wrk.counter input, .wrk-counter input', function () {
+        const min = this.min || this.dataset.min;
+        if (!!min && this.value < min) this.value = min;
+    });
+}
+
+//dropdowns
+export function initDropDownsPlugin() {
+    if ($('.wrk.dropdown, .wrk-dropdown').length) {
+        $(document).on('click', function (e) {
+            const $this = e.target.classList.contains('dropdown') ? $(e.target) : $(e.target).closest('.dropdown');
+            if (!$this.length) {
+                $('.dropdown.open').removeClass('open');
+                return;
+            }
+            const $options = $this.find('.options');
+            if (e.target === $this.get(0)) $this.toggleClass('open');
+            $('.dropdown.open').not($this).removeClass('open');
+            if ($this.hasClass('open')) {
+                if ($(window).width() > 575) {
+                    if ($this.get(0).getBoundingClientRect().left > $(window).width() / 2) {
+                        $options.css({
+                            right: 0,
+                        });
+                        $options.find('.pick').css({
+                            right: 0,
+                        });
+                    } else {
+                        $options.css({
+                            left: 0,
+                        });
+                        $options.find('.pick').css({
+                            left: 0,
+                        });
+                    }
+                } else {
+                    $options.css({
+                        left: 'calc((100% - 250px) / 2)',
+                    });
+                    $options.find('.pick').css({
+                        right: 0,
+                        left: 0,
+                        marginLeft: 'auto',
+                        marginRight: 'auto',
+                    });
+                }
+            } else {
+                $options.removeAttr('style');
+                $options.find('.pick').removeAttr('style');
+            }
+        });
+
+        $(document).on('click', '.dropdown .reset', function () {
+            $(this).closest('.dropdown').removeClass('applied').find(':checked').prop('checked', false);
+            $(this).closest('.dropdown').find('[data-default]').each(function () {
+                switch (this.tagName) {
+                    case 'INPUT':
+                        $(this).prop('checked', true);
+                        break;
+                    case 'OPTION':
+                    case 'SELECT':
+                        $(this).prop('selected', true);
+                        break;
+                    default:
+                        $(this).addClass('.active');
+                }
+            });
+            $(this).closest('form').trigger('submit');
+        });
+
+        $(document).on('click', '.dropdown .apply', function () {
+            const $dropdown = $(this).closest('.dropdown');
+            const applied = [];
+            $dropdown.find(':checked, :selected, .active').each(function () {
+                !!$(this).attr('data-caption') && applied.push($(this).attr('data-caption'));
+            });
+            const val = (applied.length > 1 ? applied.length : applied[0]);
+            $dropdown.data('applied-text') ? $dropdown.attr('data-applied-caption', $dropdown.data('applied-text') + val) : $dropdown.attr('data-applied-caption', val);
+            $dropdown.removeClass('open').addClass('applied');
+        });
+    }
+}
+
 //mask
 export function initMaskPlugin() {
     $('.wrk.masked-phone, .wrk-masked-phone').mask("8-000-000-0000");
@@ -247,7 +349,7 @@ export function initParallaxPlugin() {
 
 //scroll
 export function initScrollPlugin() {
-    $(document).on('click', '.wrk.light-scroll, .wrk-light-scroll', function (e) {
+    $(document).on('click', '.wrk.scroller, .wrk-scroller', function (e) {
         e.preventDefault();
         let scrollEl = $(this).attr('href');
         if ($(scrollEl).length) {
@@ -455,6 +557,12 @@ export function initPlugins(selector = 'meta[name="plugins"]') {
                 case "ajax-forms":
                     initAjaxFormsPlugin();
                     break;
+                case "counters":
+                    initCountersPlugin();
+                    break;
+                case "dropdowns":
+                    initDropDownsPlugin();
+                    break;
                 case "mask":
                     initMaskPlugin();
                     break;
@@ -551,106 +659,6 @@ export function initTabs(selector = '.wrk .tab:not(.unwrk), .wrk-tab') {
         $cont.find('[data-tab].active').removeClass('active');
         $this.addClass('active');
         $content.find(`[data-tab="${$this.data('tab')}"]`).addClass('active');
-    });
-}
-
-export function initDropDowns() {
-    if ($('.wrk.dropdown, .wrk-dropdown').length) {
-        $(document).on('click', function (e) {
-            const $this = e.target.classList.contains('dropdown') ? $(e.target) : $(e.target).closest('.dropdown');
-            if (!$this.length) {
-                $('.dropdown.open').removeClass('open');
-                return;
-            }
-            const $options = $this.find('.options');
-            if (e.target === $this.get(0)) $this.toggleClass('open');
-            $('.dropdown.open').not($this).removeClass('open');
-            if ($this.hasClass('open')) {
-                if ($(window).width() > 575) {
-                    if ($this.get(0).getBoundingClientRect().left > $(window).width() / 2) {
-                        $options.css({
-                            right: 0,
-                        });
-                        $options.find('.pick').css({
-                            right: 0,
-                        });
-                    } else {
-                        $options.css({
-                            left: 0,
-                        });
-                        $options.find('.pick').css({
-                            left: 0,
-                        });
-                    }
-                } else {
-                    $options.css({
-                        left: 'calc((100% - 250px) / 2)',
-                    });
-                    $options.find('.pick').css({
-                        right: 0,
-                        left: 0,
-                        marginLeft: 'auto',
-                        marginRight: 'auto',
-                    });
-                }
-            } else {
-                $options.removeAttr('style');
-                $options.find('.pick').removeAttr('style');
-            }
-        });
-
-        $(document).on('click', '.dropdown .reset', function () {
-            $(this).closest('.dropdown').removeClass('applied').find(':checked').prop('checked', false);
-            $(this).closest('.dropdown').find('[data-default]').each(function () {
-                switch (this.tagName) {
-                    case 'INPUT':
-                        $(this).prop('checked', true);
-                        break;
-                    case 'OPTION':
-                    case 'SELECT':
-                        $(this).prop('selected', true);
-                        break;
-                    default:
-                        $(this).addClass('.active');
-                }
-            });
-            $(this).closest('form').trigger('submit');
-        });
-
-        $(document).on('click', '.dropdown .apply', function () {
-            const $dropdown = $(this).closest('.dropdown');
-            const applied = [];
-            $dropdown.find(':checked, :selected, .active').each(function () {
-                !!$(this).attr('data-caption') && applied.push($(this).attr('data-caption'));
-            });
-            const val = (applied.length > 1 ? applied.length : applied[0]);
-            $dropdown.data('applied-text') ? $dropdown.attr('data-applied-caption', $dropdown.data('applied-text') + val) : $dropdown.attr('data-applied-caption', val);
-            $dropdown.removeClass('open').addClass('applied');
-        });
-    }
-}
-
-export function initCounters(dispatchEvent = false) {
-    $(document).on('click', '.wrk.counter .inc, .wrk.counter .dec, .wrk-counter .inc, .wrk-counter.dec', function () {
-        const counter = $(this).closest('.counter, .wrk-counter').find('.count').get(0);
-        if (!counter) return;
-        let prop = counter.tagName === 'INPUT' ? 'value' : 'innerHtml';
-        const factor = this.classList.contains('inc') ? 1 : -1;
-        if ((counter.min || counter.dataset.min) === counter[prop] && factor < 0) return;
-        counter[prop] = +counter[prop] + factor;
-        if (dispatchEvent) {
-            const event = new Event("input", {bubbles: true,});
-            const tracker = counter._valueTracker;
-            if (tracker) {
-                tracker.setValue(counter.value);
-            }
-            counter.dispatchEvent(event);
-        }
-    });
-
-    $(document).on('change', '.wrk.counter input, .wrk-counter input', function () {
-        const min = this.min || this.dataset.min;
-        if (!!min && this.value < min) this.value = min;
     });
 }
 

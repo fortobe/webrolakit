@@ -73,8 +73,6 @@ const config = {
         },
     };
 
-gulp.task('default', gulp.parallel('watch'));
-
 gulp.task('css:plugins', function () {
     return gulp.src(path.src.main.styles + "/plugins.css")
         .pipe(plumber({
@@ -289,8 +287,9 @@ gulp.task('watch', function () {
     browserSync.init(config.server);
 });
 
-gulp.task('build', gulp.parallel('build:view', 'build:css', 'build:js', 'build:data'));
 gulp.task('build:css', gulp.parallel('css:styles', 'css:plugins'));
 gulp.task('build:data', gulp.parallel('data'));
 gulp.task('build:js', gulp.parallel('js:script', 'js:plugins'));
 gulp.task('build:view', gulp.parallel('view:html', 'view:img', 'view:fonts'));
+gulp.task('build', gulp.parallel('build:view', 'build:css', 'build:js', 'build:data'));
+gulp.task('default', gulp.parallel('watch'));

@@ -3,13 +3,13 @@
         <main class="wrk bg-white limited">
             <div class="container">
                 <h1>Full-Stack Web Development Kit by WebRola (WRK)</h1>
-                <div class="wrk accordeon excluding">
+                <div class="wrk accordeon excluding indent">
                     <h2><a href="#utils" class="trigger">Utilities</a></h2>
                     <article id="utils" class="cont">
                         <div class="accordeon">
-                            <section class="rel">
+                            <section>
                                 <h4><a href="#u-tp" class="trigger">Text positioning</a></h4>
-                                <div id="u-tp" class="cont">
+                                <div id="u-tp" class="cont rel">
                                     <div class="abs bg-red">absolute positioned</div>
                                     <div class="al-center bg-green">Center aligned</div>
                                     <div class="al-right bg-blue">Right aligned</div>
@@ -81,52 +81,89 @@
                             </section>
                         </div>
                     </article>
-                </div>
-                <article>
-                    <h2>Components</h2>
-                    <section>
-                        <h4>Accordeon</h4>
-                        <div class=" wrk accordeon">
-                            <a href="#acc-example" class="btn trigger">Show the form</a>
-                            <div id="acc-example" class="cont">
-                                <form action="" class="wrk ajax-worm">
-                                    <div class="wrk flexed halved">
-                                        <div class="inp-group">
-                                            <label>Input example</label>
-                                            <input type="text">
-                                        </div>
-                                        <div class="inp-group">
-                                            <label>Select example</label>
-                                            <select>
-                                                <option value="">Select option</option>
-                                            </select>
+                    <h2 class="indent"><a href="#components" class="trigger">Components</a></h2>
+                    <article id="components" class="cont active">
+                        <div class="accordeon">
+                            <section>
+                                <h4>Accordeons (illustrated through the page)</h4>
+                                <div class="wrk accordeon static">
+                                    <a href="#acc-example" class="btn trigger indent">Show the form</a>
+                                    <div id="acc-example" class="cont indent">
+                                        <h4>Form elements</h4>
+                                        <form action="" class="wrk ajax-form indent">
+                                            <div class="wrk flexed halved">
+                                                <div class="inp-group">
+                                                    <label>Input example</label>
+                                                    <input type="text">
+                                                </div>
+                                                <div class="inp-group">
+                                                    <label>Select example</label>
+                                                    <select>
+                                                        <option value="">Select option</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="wrk flexed trioles">
+                                                <div class="inp-group checkable">
+                                                    <input type="radio">
+                                                    <label>Radio example</label>
+                                                </div>
+                                                <div class="inp-group checkable">
+                                                    <input type="checkbox">
+                                                    <label>Checkbox example</label>
+                                                </div>
+                                                <div>
+                                                    <label>Number example</label>
+                                                    <input type="text" class="number">
+                                                </div>
+                                            </div>
+                                            <div class="inp-group">
+                                                <label>Textarea</label>
+                                                <textarea></textarea>
+                                            </div>
+                                            <div class="head-message"></div>
+                                            <button type="submit" class="btn">Submit</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </section>
+                            <section>
+                                <h4><a href="#comp-count" class="trigger">Counter</a></h4>
+                                <div id="comp-count" class="cont indent">
+                                    <div class="wrk counter">
+                                        <div class="dec">-</div>
+                                        <input type="text" class="count" min="1" value="5">
+                                        <div class="inc">+</div>
+                                    </div>
+                                </div>
+                            </section>
+                            <section>
+                                <h4><a href="#comp-dd" class="trigger">Dropdown</a></h4>
+                                <div id="comp-dd" class="cont">
+                                    <div class="wrk dropdown indent" data-caption="Dropdown" data-applied-text="Applied: ">
+                                        <div class="reset">X</div>
+                                        <div class="options">
+                                            <div class="content">
+                                                <div class="pick"></div>
+                                                <div class="options-list">
+                                                    <div class="option">
+                                                        <input type="checkbox" value="Text" data-caption="Text">
+                                                        <label>Option 1</label>
+                                                    </div>
+                                                </div>
+                                                <div class="btn conv apply">Apply</div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="wrk flexed trioles">
-                                        <div class="inp-group checkable">
-                                            <input type="radio">
-                                            <label>Radio example</label>
-                                        </div>
-                                        <div class="inp-group checkable">
-                                            <input type="checkbox">
-                                            <label>Checkbox example</label>
-                                        </div>
-                                        <div>
-                                            <label>Number example</label>
-                                            <input type="text" class="number">
-                                        </div>
-                                    </div>
-                                    <div class="inp-group">
-                                        <label>Textarea</label>
-                                        <textarea></textarea>
-                                    </div>
-                                    <div class="head-message"></div>
-                                    <button type="submit" class="btn">Submit</button>
-                                </form>
-                            </div>
+                                    <br><br><br><br><br><br><br>
+                                </div>
+                            </section>
+                            <section>
+                                <h4>(Next Component)</h4>
+                            </section>
                         </div>
-                    </section>
-                </article>
+                    </article>
+                </div>
             </div>
         </main>
     </div>
