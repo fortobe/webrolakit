@@ -82,8 +82,8 @@
                         </div>
                     </article>
                     <h2 class="indent"><a href="#components" class="trigger">Components</a></h2>
-                    <article id="components" class="cont active">
-                        <div class="accordeon">
+                    <article id="components" class="cont">
+                        <div class="accordeon static">
                             <section>
                                 <h4>Accordeons (illustrated through the page)</h4>
                                 <div class="wrk accordeon static">
@@ -112,7 +112,7 @@
                                                     <input type="checkbox">
                                                     <label>Checkbox example</label>
                                                 </div>
-                                                <div>
+                                                <div class="inp-group">
                                                     <label>Number example</label>
                                                     <input type="text" class="number">
                                                 </div>
@@ -159,7 +159,51 @@
                                 </div>
                             </section>
                             <section>
-                                <h4>(Next Component)</h4>
+                                <h4><a href="#comp-conf" class="trigger">Option configurator with Tabs</a></h4>
+                                <div id="comp-conf" class="cont">
+                                    <div class="wrk opt-conf tabs">
+                                        <div class="tabs-list">
+                                            <a href="javascript:void(0);" class="tab active" data-tab="1">section 1</a>
+                                            <a href="javascript:void(0);" class="tab" data-tab="2">section 2</a>
+                                        </div>
+                                        <div class="oc-options tabs-cont">
+                                            <div data-tab="1" class="active">
+                                                <div class="oc-option bg-green active" data-option="1" data-module="1">Option 1</div>
+                                                <div class="oc-option bg-yellow" data-option="2" data-module="1">Option 2</div>
+                                                <div class="oc-option bg-red" data-option="3" data-module="1">Option 3</div>
+                                            </div>
+                                            <div data-tab="2">
+                                                <div class="oc-option bg-red active" data-option="4" data-module="2">Option 4</div>
+                                                <div class="oc-option bg-green" data-option="5" data-module="2">Option 5</div>
+                                                <div class="oc-option bg-blue" data-option="6" data-module="2">Option 6</div>
+                                            </div>
+                                        </div>
+                                        <div class="oc-cont">
+                                            <div data-module="1" data-option="1" class="bg-green active"></div>
+                                            <div data-module="1" data-option="2" class="bg-yellow"></div>
+                                            <div data-module="1" data-option="3" class="bg-red"></div>
+                                            <div data-module="2" data-option="4" class="bg-red active"></div>
+                                            <div data-module="2" data-option="5" class="bg-green"></div>
+                                            <div data-module="2" data-option="6" class="bg-blue"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                            <section>
+                                <h4><a href="#comp-slider" class="trigger">Slider</a></h4>
+                                <div id="comp-slider" class="cont">
+                                    <div class="wrk slider" data-settings='{"arrows":true}'>
+                                        <div class="slider-container">
+                                            <div class="slide bg-green">slide 1</div>
+                                            <div class="slide bg-yellow">slide 2</div>
+                                            <div class="slide bg-red">slide 3</div>
+                                        </div>
+                                        <div class="slider-controls">
+                                            <div class="prev">&larr;</div>
+                                            <div class="next">&rarr;</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </section>
                         </div>
                     </article>

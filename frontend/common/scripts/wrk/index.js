@@ -30,7 +30,7 @@ export function initAccordeonPlugin($selector = $(".wrk.accordeon, .wrk-accordeo
 }
 
 //ajax-forms
-export function initAjaxFormsPlugin(ajaxFormHandler, selector = '.wrk.ajax-form', urlPrefix = "", urlPostfix = "") {
+export function initAjaxFormPlugin(ajaxFormHandler, selector = '.wrk.ajax-form', urlPrefix = "", urlPostfix = "") {
     if ($(selector).length > 0) {
         $(document).on('submit', selector, function (e) {
             e.preventDefault();
@@ -45,6 +45,10 @@ export function initAjaxFormsPlugin(ajaxFormHandler, selector = '.wrk.ajax-form'
                     dataType: dataType,
                     method: method,
                     async: !!data.async,
+                    beforeSend: function() {
+                        $button.prop('disabled', true);
+                        $this.find('.error-log, .head-message').removeClass('error success').html('');
+                    },
                     success: function (result) {
                         if (!!data.handler && typeof window[data.handler] === 'function') {
                             window[data.handler](result, $this);
@@ -56,8 +60,13 @@ export function initAjaxFormsPlugin(ajaxFormHandler, selector = '.wrk.ajax-form'
                                 $message.addClass('success').html(result.message);
                                 $this.find('*').remove();
                                 $this.append($message);
+                                if (data.reload) {
+                                    setTimeout(function () {
+                                        location.reload();
+                                    }, +(data.reload||0) * 1000);
+                                }
                             } else {
-                                $this.find('.head-message').addClass('error').html(result.message);
+                                $this.find('.head-message').addClass('error').html(result.message||$this.data('error-message'));
                                 if ('errors' in result) {
                                     for (let name in result.errors) {
                                         if (!result.errors.hasOwnProperty(name)) continue;
@@ -69,18 +78,17 @@ export function initAjaxFormsPlugin(ajaxFormHandler, selector = '.wrk.ajax-form'
                                         $log.addClass('error').html(result.errors[name]);
                                     }
                                 }
+                                $button.prop('disabled', false);
                             }
                         }
                     },
                     error: function (result) {
                         if (window.debugMode) console.log("WRK_ERROR: " + result.responseText);
-                    },
-                    complete: function () {
-                        $button.removeAttr('disabled');
+                        $this.find('.head-message').addClass('error').html(result.message||data['error-message']);
+                        $button.prop('disabled', false);
                     },
                 };
-            $button.attr('disabled', 'disabled');
-            $this.find('.error-log, .head-message').removeClass('error success').html('');
+            if ($button.prop('disabled')) return false;
             let url = $this.attr("action");
             if (data.customAction) url = data.customAction;
             else if ($this.attr("action")) url = urlPrefix + url + urlPostfix;
@@ -96,7 +104,7 @@ export function initAjaxFormsPlugin(ajaxFormHandler, selector = '.wrk.ajax-form'
 }
 
 //counters
-export function initCountersPlugin(dispatchEvent = false) {
+export function initCounterPlugin(dispatchEvent = false) {
     $(document).on('click', '.wrk.counter .inc, .wrk.counter .dec, .wrk-counter .inc, .wrk-counter.dec', function () {
         const counter = $(this).closest('.counter, .wrk-counter').find('.count').get(0);
         if (!counter) return;
@@ -121,7 +129,26 @@ export function initCountersPlugin(dispatchEvent = false) {
 }
 
 //dropdowns
-export function initDropDownsPlugin() {
+export function initDropDownPlugin() {
+
+    const resetHandler = function () {
+        $(this).closest('.dropdown').removeClass('applied').find(':checked').prop('checked', false);
+        $(this).closest('.dropdown').find('[data-default]').each(function () {
+            switch (this.tagName) {
+                case 'INPUT':
+                    $(this).prop('checked', true);
+                    break;
+                case 'OPTION':
+                case 'SELECT':
+                    $(this).prop('selected', true);
+                    break;
+                default:
+                    $(this).addClass('.active');
+            }
+        });
+        $(this).closest('form').trigger('submit');
+    };
+
     if ($('.wrk.dropdown, .wrk-dropdown').length) {
         $(document).on('click', function (e) {
             const $this = e.target.classList.contains('dropdown') ? $(e.target) : $(e.target).closest('.dropdown');
@@ -166,23 +193,7 @@ export function initDropDownsPlugin() {
             }
         });
 
-        $(document).on('click', '.dropdown .reset', function () {
-            $(this).closest('.dropdown').removeClass('applied').find(':checked').prop('checked', false);
-            $(this).closest('.dropdown').find('[data-default]').each(function () {
-                switch (this.tagName) {
-                    case 'INPUT':
-                        $(this).prop('checked', true);
-                        break;
-                    case 'OPTION':
-                    case 'SELECT':
-                        $(this).prop('selected', true);
-                        break;
-                    default:
-                        $(this).addClass('.active');
-                }
-            });
-            $(this).closest('form').trigger('submit');
-        });
+        $(document).on('click', '.dropdown .reset', resetHandler);
 
         $(document).on('click', '.dropdown .apply', function () {
             const $dropdown = $(this).closest('.dropdown');
@@ -190,6 +201,11 @@ export function initDropDownsPlugin() {
             $dropdown.find(':checked, :selected, .active').each(function () {
                 !!$(this).attr('data-caption') && applied.push($(this).attr('data-caption'));
             });
+            if (!applied.length) {
+                $dropdown.removeClass('open');
+                resetHandler.apply(this);
+                return;
+            }
             const val = (applied.length > 1 ? applied.length : applied[0]);
             $dropdown.data('applied-text') ? $dropdown.attr('data-applied-caption', $dropdown.data('applied-text') + val) : $dropdown.attr('data-applied-caption', val);
             $dropdown.removeClass('open').addClass('applied');
@@ -204,7 +220,7 @@ export function initMaskPlugin() {
     $('.wrk.masked-sdate, .wrk-masked-sdate').mask("00.00.00");
     $('.wrk.masked-datetime, .wrk-masked-datetime').mask("00.00.0000 00:00:00");
     $('.wrk.masked-phone-simple, .wrk-masked-phone-simple').mask("00-00-00");
-    $('.wrk.masked-phone-mobile, .wrk-masked-phone-mobile').mask("8(000)000-00-00");
+    $('.wrk.masked-phone-mobile, .wrk-masked-phone-mobile').mask("+7 (000) 000-00-00");
     $.applyDataMask();
 }
 
@@ -316,6 +332,27 @@ export function setModal(selector = '.modal-trigger', settings = false) {
     });
 }
 
+//option configurator
+export function initOptionConfigurator() {
+
+    $(document).on('click', '.wrk .oc-option', function (e) {
+        e.preventDefault();
+        if ($(this).hasClass('active')) {
+            return false;
+        }
+        const $this = $(this),
+            $conf = $this.closest('.wrk.opt-conf, .wrk-opt-conf'),
+            $cont = $conf.find('.oc-cont, .wrk-oc-cont'),
+            $opts = $conf.find('.oc-options, .wrk-oc-options'),
+            option = `[data-option="${$this.data('option')}"]`,
+            module = $this.data('module') ? `[data-module="${$this.data('module')}"]` : '';
+        $opts.find(module + '[data-option].active').removeClass('active');
+        $cont.find(module + '.active').removeClass('active');
+        $cont.find(module + option).addClass('active');
+        $this.addClass('active');
+    });
+}
+
 //parallax
 export function initParallaxPlugin() {
 
@@ -367,7 +404,7 @@ export function initSliderPlugin(settings = {}) {
     const defaultSettings = {
         //default values:
         // accessibility: true,    //true
-        //adaptiveHeight: false,  //false
+        adaptiveHeight: true,  //false
         autoplay: true,    //false
         autoplaySpeed: 5000,    //3000
         arrows: true,   //true
@@ -517,6 +554,19 @@ export function setSticky($selector = '.sticky', settings = {topSpacing: 0,}) {
     $selector.sticky(settings);
 }
 
+//tabs
+export function initTabsPlugin(selector = '.wrk .tab:not(.unwrk), .wrk-tab') {
+    $(document).on('click', selector, function (e) {
+        e.preventDefault();
+        const $this = $(this),
+            $cont = $this.closest('.tabs, .wrk-tabs'),
+            $content = $cont.find('.tabs-cont, .wrk-tabs-cont');
+        $cont.find('[data-tab].active').removeClass('active');
+        $this.addClass('active');
+        $content.find(`[data-tab="${$this.data('tab')}"]`).addClass('active');
+    });
+}
+
 //text-scroller
 export function setToggleScroller($selector = '.wrk.text-scroll, .wrk-text-scroller') {
     $(document).on('click', $selector + ' .dismiss', function () {
@@ -554,14 +604,17 @@ export function initPlugins(selector = 'meta[name="plugins"]') {
                 case "accordeon":
                     initAccordeonPlugin();
                     break;
-                case "ajax-forms":
-                    initAjaxFormsPlugin();
+                case "ajax-form":
+                    initAjaxFormPlugin();
                     break;
-                case "counters":
-                    initCountersPlugin();
+                case "configurator":
+                    initOptionConfigurator();
                     break;
-                case "dropdowns":
-                    initDropDownsPlugin();
+                case "counter":
+                    initCounterPlugin();
+                    break;
+                case "dropdown":
+                    initDropDownPlugin();
                     break;
                 case "mask":
                     initMaskPlugin();
@@ -572,7 +625,7 @@ export function initPlugins(selector = 'meta[name="plugins"]') {
                 case "parallax":
                     initParallaxPlugin();
                     break;
-                case "scroll":
+                case "scroller":
                     initScrollPlugin();
                     break;
                 case "slider":
@@ -580,6 +633,9 @@ export function initPlugins(selector = 'meta[name="plugins"]') {
                     break;
                 case "sticky":
                     initStickyPlugin();
+                    break;
+                case 'tabs':
+                    initTabsPlugin();
                     break;
             }
         }
@@ -615,51 +671,6 @@ export function starsBG($selector) {
         delay += 29 + (f += 1.5);
     }
     $selector.append($container.append($('<div>').addClass('canvas').append(stars)));
-}
-
-export function initOptionConfigurator() {
-
-    $(document).on('click', '.wrk .oc-option', function (e) {
-        e.preventDefault();
-        if ($(this).hasClass('active')) {
-            return false;
-        }
-        const $this = $(this),
-            $conf = $this.closest('.wrk.opt-conf, .wrk-opt-conf'),
-            $cont = $conf.find('.oc-cont, .wrk-oc-cont'),
-            $opts = $conf.find('.oc-options, .wrk-oc-options'),
-            option = `[data-option="${$this.data('option')}"]`,
-            module = $this.data('module') ? `[data-module="${$this.data('module')}"]` : '';
-        $opts.find(module + '.active').removeClass('active');
-        $cont.find(module + '.active').removeClass('active');
-        $cont.find(module + option).addClass('active');
-        $this.addClass('active');
-    });
-
-    $(document).on('click', '.wrk .oc-sect-nav', function (e) {
-        e.preventDefault();
-        if ($(this).hasClass('active')) {
-            return false;
-        }
-        const $this = $(this),
-            $conf = $this.closest('.wrk.opt-conf, .wrk-opt-conf'),
-            section = `[data-section="${$this.data('section')}"]`;
-        $this.parent('.oc-sect-navs').find('.active').removeClass('active');
-        $conf.find('[data-section].active').removeClass('active');
-        $conf.find(section).addClass('active');
-    });
-}
-
-export function initTabs(selector = '.wrk .tab:not(.unwrk), .wrk-tab') {
-    $(document).on('click', selector, function (e) {
-        e.preventDefault();
-        const $this = $(this),
-            $cont = $this.closest('.tabs, .wrk-tabs'),
-            $content = $cont.find('.tabs-cont, .wrk-tabs-cont');
-        $cont.find('[data-tab].active').removeClass('active');
-        $this.addClass('active');
-        $content.find(`[data-tab="${$this.data('tab')}"]`).addClass('active');
-    });
 }
 
 export function initVideoPlayer() {

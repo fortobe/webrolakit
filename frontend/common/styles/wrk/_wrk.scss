@@ -15,7 +15,6 @@
 
         &.number {
             display: inline-block;
-            margin: 0 $mrgs;
             vertical-align: middle;
             width: 5rem;
         }
@@ -479,6 +478,61 @@
         justify-content: space-between;
     }
 
+    .gallery-item:not(.unwrk),
+    &.gallery-item,
+    &-gallery-item {
+        display: block;
+        overflow: hidden;
+        position: relative;
+
+        &::after {
+            @include stretch;
+            background: center center no-repeat;
+            content: '';
+            transition: background .3s ease;
+        }
+
+        &:hover {
+
+            &::after {
+                background-color: rgba($black, .5);
+            }
+
+            img {
+                transform: scale(1.05);
+            }
+        }
+
+        &.media {
+
+            &::after {
+                background-size: 25%;
+            }
+        }
+
+        img {
+            transition: transform .3s ease-out;
+        }
+    }
+
+    .grid:not(.unwrk),
+    &.grid,
+    &-grid {
+        display: flex;
+        margin: 0 -15px (-$mrgm);
+
+        .cell,
+        &_cell {
+            padding: 0 15px $mrgm;
+
+            .item,
+            &-item {
+                display: block;
+                text-decoration: none;
+            }
+        }
+    }
+
     .half:not(.unwrk),
     &.half,
     &half {
@@ -530,6 +584,50 @@
     &-indent
     {
         margin-top: $mrgm;
+    }
+
+    .inp-group:not(.unwrk),
+    &.inp-group,
+    &-inp-group
+    {
+        margin-bottom: $mrgl;
+
+        input:not([type="checkbox"]):not([type="radio"]):not(.number),
+        textarea,
+        select
+        {
+            display: block;
+            width: 100%;
+        }
+
+        label {
+            display: block;
+            font-size: px2rem($f_s);
+            margin-bottom: $mrgs;
+        }
+
+        &.checkable {
+
+            & > * {
+                display: inline-block;
+                vertical-align: middle;
+            }
+
+            input + * {
+                margin-left: $mrgs;
+            }
+
+            label {
+                margin-bottom: 0;
+            }
+        }
+    }
+
+    .inp-line,
+    &.inp-line,
+    &-inp-line
+    {
+        margin-bottom: $mrgl;
     }
 
     .lc:not(.unwrk),
@@ -662,6 +760,39 @@
     &-va-top {
         display: inline-block;
         vertical-align: top;
+    }
+
+    .video-frame,
+    &.video-frame,
+    &-video-frame {
+        font-size: 0;
+
+        & > a,
+        a#{&} {
+            display: block;
+            position: relative;
+
+            &::after {
+                @include stretch;
+                background: rgba($black, .5) center center/30% no-repeat;
+                content: '';
+                opacity: .5;
+                transition: opacity .3s ease;
+                z-index: 1;
+            }
+
+            &:hover {
+
+                &::after {
+                    opacity: 1;
+                }
+            }
+        }
+
+        img,
+        video {
+            width: 100%;
+        }
     }
 
     [data-cont]:not(.unwrk),
@@ -889,10 +1020,9 @@
 
             .reset {
                 background: $icon_close center center/contain no-repeat;
-                border-left: 2px solid;
                 display: block;
                 height: 100%;
-                padding-right: $mrgl;
+                padding-right: $mrgs;
                 position: absolute;
                 right: 0;
                 top: 0;
@@ -901,109 +1031,9 @@
         }
     }
 
-    &.gallery-item,
-    &-gallery-item {
-        display: block;
-        overflow: hidden;
-        position: relative;
-
-        &::after {
-            @include stretch;
-            background: center center no-repeat;
-            content: '';
-            transition: background .3s ease;
-        }
-
-        &:hover {
-
-            &::after {
-                background-color: rgba($black, .5);
-            }
-
-            img {
-                transform: scale(1.05);
-            }
-        }
-
-        &.media {
-
-            &::after {
-                background-size: 25%;
-            }
-        }
-
-        img {
-            transition: transform .3s ease-out;
-        }
-    }
-
-    &.grid,
-    &-grid {
-        display: flex;
-        margin: 0 -15px (-$mrgm);
-
-        .cell,
-        &_cell {
-            padding: 0 15px $mrgm;
-
-            .item,
-            &-item {
-                display: block;
-                text-decoration: none;
-            }
-        }
-    }
-
-    .inp-group:not(.unwrk),
-    &.inp-group,
-    &-inp-group
-    {
-        margin-bottom: $mrgl;
-
-        input:not([type="checkbox"]):not([type="radio"]),
-        textarea,
-        select
-        {
-            display: block;
-            width: 100%;
-        }
-
-        label {
-            display: block;
-            font-size: px2rem($f_s);
-            margin-bottom: $mrgs;
-        }
-
-        &.checkable {
-
-            & > * {
-                display: inline-block;
-                vertical-align: middle;
-            }
-
-            input + * {
-                margin-left: $mrgs;
-            }
-
-            label {
-                margin-bottom: 0;
-            }
-        }
-    }
-
-    &.inp-line,
-    &-inp-line
-    {
-        margin-bottom: $mrgl;
-    }
-
     &.opt-conf,
     &-opt-conf {
         position: relative;
-
-        .oc-sect-nav {
-            cursor: pointer;
-        }
 
         .oc-cont,
         .wrk-oc-cont {
@@ -1029,7 +1059,7 @@
             }
 
 
-        [data-section]:not(.oc-sect-nav) {
+        [data-module]:not(.oc-option) {
             left: 0;
             opacity: 0;
             position: absolute;
@@ -1188,40 +1218,8 @@
         }
     }
 
-    &.video-frame,
-    &-video-frame {
-        font-size: 0;
-
-        & > a,
-        a#{&} {
-            display: block;
-            position: relative;
-
-            &::after {
-                @include stretch;
-                background: rgba($black, .5) center center/30% no-repeat;
-                content: '';
-                opacity: .5;
-                transition: opacity .3s ease;
-                z-index: 1;
-            }
-
-            &:hover {
-
-                &::after {
-                    opacity: 1;
-                }
-            }
-        }
-
-        img,
-        video {
-            width: 100%;
-        }
-    }
-
     &.video-player,
     &-video-player {
-
+        //todo any styles??
     }
 }
