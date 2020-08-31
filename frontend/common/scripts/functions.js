@@ -33,6 +33,10 @@ export function autoPlaceholder() {
     replacePL();
 }
 
+export function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 export function consoleLog(logItem) {
     if (window.debugMode) console.dir(logItem);
 }

@@ -12,25 +12,25 @@ $mrgxxs: 10px;
 
 //fonts
 $rem: 18;
-$f_prime: 'Helvetica';
-$f_sec: 'Arial';
-$f_aux: sans-serif;
-$f_norm: 600;
-$f_med: 500;
-$f_thin: 300;
-$f_lh: 1.5;
-$f_lh2: 1.25;
+$ff_prime: 'Helvetica';
+$ff_sec: 'Arial';
+$ff_aux: sans-serif;
+$fw_norm: 600;
+$fw_med: 500;
+$fw_thin: 300;
+$lh: 1.5;
+$lh_alt: 1.25;
 
-$f_h1: 48;
-$f_h2: 32;
-$f_h4: 28;
-$f_h6: 22;
-$f_xl: 34;
-$f_l: 20;
-$f_m: $rem;
-$f_s: 16;
-$f_xs: 14;
-
+$fs_h1: 48;
+$fs_h2: 32;
+$fs_h4: 28;
+$fs_h6: 22;
+$fs_xl: 34;
+$fs_l: 20;
+$fs_m: $rem;
+$fs_s: 16;
+$fs_xs: 14;
+$fs_xxs: 12;
 
 //colours
 $white: #fff;
@@ -159,6 +159,11 @@ $bp_xs: 320;
     display: flex;
     align-items: $align;
     justify-content: $justify;
+    @if ($justify == stretch) {
+        & > * {
+            flex: 1 1 auto;
+        }
+    }
 }
 
 @mixin make_grid($cols:4, $direction:row, $valign:stretch, $halign:center) {

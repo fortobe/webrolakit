@@ -84,6 +84,10 @@
         }
     }
 
+    menu:not(.unwrk) {
+        @include compile_menu;
+    }
+
     select:not(.unwrk) {
         background: $icon_dropdown calc(100% - 15px) center/10px no-repeat;
         cursor: pointer;
@@ -161,31 +165,43 @@
     &.avatar,
     &-avatar
     {
-        border: 3px solid;
-        border-radius: 100%;
 
+        img,
         img#{&} {
+            border: 3px solid;
+            border-radius: 100%;
             object-fit: cover;
             object-position: center center;
         }
 
-        &:not(img) {
-            font-size: 0;
-            height: 0;
-            overflow: hidden;
-            padding-top: (170px / 176px) * 100%;
-            position: relative;
+        img#{&} {
+            width: 170px;
+            height: 170px;
+        }
 
-            img {
-                bottom: 0;
-                height: 100%;
-                left: 0;
-                object-fit: cover;
-                object-position: center center;
-                position: absolute;
-                right: 0;
-                top: 0;
-                width: 100%;
+        &:not(img) {
+
+            .image {
+                overflow: hidden;
+                padding-top: (170px / 176px) * 100%;
+                font-size: 0;
+                height: 0;
+                position: relative;
+
+                img {
+                    bottom: 0;
+                    height: 100%;
+                    left: 0;
+                    position: absolute;
+                    right: 0;
+                    top: 0;
+                    width: 100%;
+                }
+            }
+
+            figcaption,
+            .caption {
+                margin-top: $mrgs;
             }
         }
     }
@@ -476,6 +492,22 @@
         align-items: center;
         display: flex;
         justify-content: space-between;
+
+        &.ai-fs {
+            align-items: flex-start;
+        }
+
+        &.ai-fe {
+            align-items: flex-start;
+        }
+
+        &.ai-st {
+            align-items: stretch;
+        }
+
+        &.jc {
+
+        }
     }
 
     .gallery-item:not(.unwrk),
@@ -602,7 +634,7 @@
 
         label {
             display: block;
-            font-size: px2rem($f_s);
+            font-size: px2rem($fs_s);
             margin-bottom: $mrgs;
         }
 
@@ -641,6 +673,21 @@
     &-limited {
         margin: 0 auto;
         max-width: 1600px;
+    }
+
+    .overflowed:not(.unwrk),
+    &.overflowed,
+    &-overflowed
+    {
+        overflow: visible !important;
+
+        &-x {
+            overflow-x: visible !important;
+        }
+
+        &-y {
+            overflow-y: visible !important;
+        }
     }
 
     .plained:not(.unwrk),
@@ -854,7 +901,7 @@
     {
         align-items: stretch;
         display: flex;
-        font-size: px2rem($f_s);
+        font-size: px2rem($fs_s);
         justify-content: stretch;
         height: 45px;
         text-align: center;
@@ -878,7 +925,7 @@
 
         .count {
             text-align: center;
-            font-weight: $f_med;
+            font-weight: $fw_med;
             width: $mrgm;
             padding: 10px 5px !important;
         }
@@ -921,7 +968,6 @@
         .options,
         &_options {
             bottom: 0;
-            color: $black;
             display: none;
             max-width: 400px;
             min-width: 250px;
@@ -955,6 +1001,10 @@
                     {
                         flex-shrink: 0;
                         outline: none;
+                    }
+
+                    label {
+                        cursor: pointer;
                     }
 
                     .name {
