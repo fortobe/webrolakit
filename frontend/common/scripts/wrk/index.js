@@ -470,10 +470,15 @@ export function initSliderPlugin(settings = {}) {
 
         if (!$(this).hasClass('slave')) {
             if (settings.arrows === true) {
-                $(this).append($('<div>').addClass(classPrefix + 'slider-controls').append([
+                let $controls = $(this).find('.slider-controls');
+                if (!$controls.length) {
+                    $controls = $('<div>').addClass(classPrefix + 'slider-controls');
+                    $(this).append($controls);
+                }
+                $controls.append([
                     $('<div>').addClass(classPrefix + 'prev'),
                     $('<div>').addClass(classPrefix + 'next'),
-                ]));
+                ])
                 settings.prevArrow = $(this).find('.' + classPrefix + 'prev');
                 settings.nextArrow = $(this).find('.' + classPrefix + 'next');
             }
@@ -561,9 +566,23 @@ export function initTabsPlugin(selector = '.wrk .tab:not(.unwrk), .wrk-tab') {
         const $this = $(this),
             $cont = $this.closest('.tabs, .wrk-tabs'),
             $content = $cont.find('.tabs-cont, .wrk-tabs-cont');
-        $cont.find('[data-tab].active').removeClass('active');
+        $cont.find('.tab.active, [data-tab].active').removeClass('active');
         $this.addClass('active');
-        $content.find(`[data-tab="${$this.data('tab')}"]`).addClass('active');
+        $content.find(`[data-tab="${$this.data('tab')||$this.attr('href')}"]`).addClass('active');
+    });
+
+    const playNext = $player => {
+        setTimeout(() => {
+            const $tabs = $player.find('.tab');
+            let index = $tabs.index($tabs.filter('.active').get(0));
+            index = index === $tabs.length - 1 ? 0 : index + 1;
+            $tabs.eq(index).trigger('click');
+            playNext($player);
+        }, $player.data('autoplay')||5000);
+    };
+
+    $('.wrk.tabs[data-autoplay], .wrk-tabs[data-autoplay]').each(function() {
+        playNext($(this));
     });
 }
 
@@ -686,5 +705,12 @@ export function initVideoPlayer() {
             src: src,
             poster: poster || '',
         });
+    });
+}
+
+export function initMovetos() {
+    $('[data-moveto]').each(function(){
+        if (!$(this).data('moveto')) return;
+        $($(this).data('moveto')).append($(this));
     });
 }
