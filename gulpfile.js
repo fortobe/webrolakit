@@ -276,7 +276,7 @@ gulp.task('watch', function () {
     gulp.watch([
         path.src.main.scripts + "/app.js",
         path.src.main.scripts + "/functions.js",
-        path.src.main.scripts + "/components/**/*.js",
+        path.src.main.scripts + "/app/**/*.js",
         path.src.common.scripts,
     ], gulp.parallel('js:app'));
 

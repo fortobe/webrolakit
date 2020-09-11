@@ -216,10 +216,10 @@ class main
         return $files;
     }
 
-    public static function resize_image($img, $iWidth = 800, $iHeight = 600, $iMode = BX_RESIZE_IMAGE_PROPORTIONAL_ALT) {
+    public static function resize_image($img, $arSizes = [500], $iMode = BX_RESIZE_IMAGE_PROPORTIONAL_ALT) {
         return \CFile::ResizeImageGet($img,[
-            'width' => $iWidth,
-            'height' => $iHeight,
+            'width' => $arSizes[0],
+            'height' => $arSizes[1]?:$arSizes[0],
         ], $iMode);
     }
 
@@ -265,6 +265,7 @@ class main
     {
         $a_elems = $a_filter = array();
         $a_select = ($a_params["select"]) ?: array("*");
+        $a_group = ($a_params["group"]) ?: false;
         if (is_array($a_params["filter"])) $a_filter = $a_params["filter"];
         $a_sort = ($a_params["sort"]) ?: array('SORT' => 'ASC', 'ID' => "ASC");
         if ($a_params["user"]) $a_filter["CREATED_BY"] = $a_params["user"];
@@ -272,7 +273,7 @@ class main
         if ($a_params["iblock"]) $a_filter["IBLOCK_CODE"] = $a_params["iblock"];
         if ($a_params["inactive"]) $a_filter["ACTIVE"] = "";
         else $a_filter["ACTIVE"] = "Y";
-        $o_elems = \CIBlockElement::GetList($a_sort, $a_filter, false, false, $a_select);
+        $o_elems = \CIBlockElement::GetList($a_sort, $a_filter, $a_group, false, $a_select);
         $i = 0;
         while ($o_elem = $o_elems->GetNextElement()) {
             $a_elem = $o_elem->GetFields();
@@ -370,6 +371,49 @@ class main
             $a_properties[$a_property["CODE"]] = $a_property;
         }
         return $a_properties;
+    }
+
+    public static function get_iblock_prop_vals($s_iblock, $s_prop_code, $a_filter = [], $b_counts = true) {
+        $a_result = [];
+        $s_prop_code = 'PROPERTY_'.strtoupper($s_prop_code);
+        if (!!$s_iblock) $a_filter['IBLOCK_CODE'] = $s_iblock;
+        $o_vals = \CIBlockElement::GetList([$s_prop_code => 'ASC'], $a_filter, [$s_prop_code]);
+        while($a_val = $o_vals->GetNext()) {
+            $a_result[$a_val[$s_prop_code.'_VALUE']] = $a_val['CNT'];
+        }
+        return $b_counts ? $a_result : array_keys($a_filter);
+    }
+
+    public static function get_iblock_props_vals_mapped($s_iblock, $a_select = [], $a_filter = [], $bSkipEmpty = true) {
+        $a_result = [];
+        if (!!$s_iblock) $a_filter['IBLOCK_CODE'] = $s_iblock;
+        if (!is_array($a_select)) {
+            $a_select = [$a_select];
+        }
+        $o_vals = \CIBlockElement::GetList([], $a_filter, false, false, ['ID', 'IBLOCK_ID']);
+        while($o_val = $o_vals->GetNextElement()) {
+            if (!empty($a_select)) {
+                foreach ($a_select as $a_prop) {
+                    $a_prop = $o_val->GetProperty($a_prop);
+                    if (empty($a_prop['VALUE'])) continue;
+                    if (is_array($a_prop['VALUE']))
+                        foreach ($a_prop['VALUE'] as $value)
+                            ++$a_result[$a_prop['CODE']][$value];
+                    else ++$a_result[$a_prop['CODE']][$a_prop['VALUE']];
+                }
+            } else {
+                $a_filter = [];
+                if ($bSkipEmpty) $a_filter['EMPTY'] = "N";
+                $a_props = $o_val->GetProperties(['CODE' => 'ASC'], $a_filter);
+                foreach ($a_props as $a_prop) {
+                    if (is_array($a_prop['VALUE']))
+                        foreach ($a_prop['VALUE'] as $value)
+                            ++$a_result[$a_prop['CODE']][$value];
+                    else ++$a_result[$a_prop['CODE']][$a_prop['VALUE']];
+                }
+            }
+        }
+        return $a_result;
     }
 
     //returns: (Array|int) an array of found property of just it's id
