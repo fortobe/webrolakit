@@ -18,6 +18,8 @@ function app_init($s_class = '')
     require($_SERVER["DOCUMENT_ROOT"] . "/local/php_interface/wrk/classes/wrk.actions.class.php");
     if ($s_class) require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/php_interface/wrk/classes/wrk." . $s_class . ".class.php");
     $o_actions = new \wrk\classes\wrk_actions;
+
+    if (function_exists('init')) init();
 }
 
 /**
@@ -140,6 +142,34 @@ function format_price($s_in, $b_decimals = true,  $s_postfix = '.-')
 }
 
 /**
+ * Transforms the associative array into attributes string for html elements.
+ *
+ * @param array $a_attrs - associative array of attributes
+ * @param bool $b_data - data prefix switch
+ * @return string - html ready attributes string
+ */
+function get_attr_string($a_attrs, $b_data = false) {
+    $a_attrs_list = [];
+    $b_data = !!$b_data ? 'data-' : '';
+    foreach ($a_attrs as $m_attr => $s_val) {
+        if (!is_numeric($m_attr)) {
+            $a_attrs_list[] = "{$b_data}{$m_attr}=\"{$s_val}\"";
+        } else $a_attrs_list[] = $b_data.$s_val;
+    }
+    return join(' ', $a_attrs_list);
+}
+
+/**
+ * Transforms phone string into the one, containing only digits and + sign;
+ *
+ * @param $s_phone
+ * @return string|null
+ */
+function get_clean_phone($s_phone) {
+    return preg_replace('/[^+\d]/', '', $s_phone);
+}
+
+/**
  * Extracts domain name from the link string
  *
  * @param string $s_link - url
@@ -186,6 +216,13 @@ function get_declensions($i_count, $a_desc, $b_return_array = false)
     else return $i_count . " " . $s_desc;
 }
 
+/**
+ * Return the price with applied discount
+ *
+ * @param int|string $m_price - the initial price
+ * @param int $i_discount - the discount ammount
+ * @return float|int
+ */
 function get_discounted_price($m_price, $i_discount = 0) {
     return +str_replace(' ', '', $m_price) * ($i_discount > 0 ? 1 - $i_discount / 100 : 1);
 }
@@ -319,7 +356,20 @@ function get_random_string($length)
     return $res;
 }
 
+/**
+ * return the closure for string patching
+ *
+ * @param string $s_hole - pattenr for patching formatted as #KEY#
+ * @return Closure
+ */
 function get_patcher($s_hole) {
+
+    /**
+     * @param string $s_cloth - replaced string
+     * @param string $s_patch - replacing string
+     *
+     * @return string - patched string
+     */
     return function ($s_cloth, $s_patch) use ($s_hole) {
         return str_replace($s_hole, $s_patch, $s_cloth);
     };
@@ -409,6 +459,7 @@ function is_overdue($s_sced_date, $b_full = true)
  */
 function organise_files_array($a_stack)
 {
+    if (empty($a_stack['name'])) return [];
     $a_files = array();
     foreach ($a_stack as $k => $key) {
         $i = 0;
@@ -418,6 +469,55 @@ function organise_files_array($a_stack)
         }
     }
     return $a_files;
+}
+
+/**
+ * Prepares the array of filter options
+ *
+ * @param array $a_list - raw data array
+ * @param string $s_caption_key - the key is used for caption
+ * @param string $s_value_key - the key is used for value
+ * @param null $s_aux - the key is used for auxilliary data
+ * @param bool $s_index - the key is used as index
+ * @param bool $b_md5index - use md5 for indexes
+ * @return array
+ */
+function prepare_filter($a_list, $s_caption_key, $s_value_key, $s_aux = null, $s_index = false, $b_md5index = false) {
+    $a_filters = [];
+    foreach ($a_list as $id => $a_item) {
+        $a_filter = [
+            'CAPTION' => $a_item[$s_caption_key],
+            'VALUE' => $a_item[$s_value_key],
+        ];
+        if ($s_aux) $a_filter['AUX'] = $a_item[$s_aux];
+        $s_index ? $a_filters[$b_md5index ? md5($a_item[$s_index]): $a_item[$s_index]] = $a_filter : $a_filters[] = $a_filter;
+    }
+    return $a_filters;
+}
+
+/**
+ * Assembles and sorts array of prepared filters
+ *
+ * @param array $a_filters - the pointer for filters
+ */
+function prepare_filters(&$a_filters) {
+    if (!empty($a_filters)) {
+        foreach ($a_filters as $s_code => &$a_filter) {
+            $a_applied = [];
+            foreach ($a_filter['ITEMS'] as &$a_item) {
+                if (in_array($a_item['VALUE'], $_REQUEST[strtolower($s_code)])) {
+                    $a_item['CHECKED'] = true;
+                    $a_applied[] = $a_item['CAPTION'];
+                }
+            }
+            if (!empty($a_applied)) {
+                $a_filter['APPLIED'] = (count($a_applied) > 1) ? count($a_applied) : $a_applied[0];
+            }
+        }
+        uasort($a_filters, function ($a, $b) {
+            return $a['SORT'] - $b['SORT'];
+        });
+    }
 }
 
 /**

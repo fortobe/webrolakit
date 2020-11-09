@@ -3,20 +3,18 @@ import {
     getRandomInt,
 } from "../functions";
 
-//accordeon
+//region Accordeon
 export function initAccordeonPlugin($selector = $(".wrk.accordeon, .wrk-accordeon")) {
     if ($selector.length > 0) {
-
-        $selector.filter('.static').find('.cont').each(function () {
-            $(this).css('height', $(this).hasClass('active') ? this.offsetHeight : this.scrollHeight);
-        });
-
         $(document).on("click", ".trigger, .wrk-trigger", function (e) {
             e.preventDefault();
             const $this = $(this),
                 $parent = $this.closest(".accordeon, .wrk-accordeon"),
                 $target = $($this.data('target') || $this.attr('href'));
             if (!$target.length) return;
+            if ($parent.hasClass('static')) {
+                $target.css('height', $target.get(0).scrollHeight);
+            }
             if ($parent.hasClass("excluding")) {
                 $parent.find('.cont.active, .trigger.active').removeClass('active');
                 $($this).addClass('active');
@@ -28,14 +26,51 @@ export function initAccordeonPlugin($selector = $(".wrk.accordeon, .wrk-accordeo
         });
     }
 }
+//endregion
 
 //ajax-forms
 export function initAjaxFormPlugin(ajaxFormHandler, selector = '.wrk.ajax-form', urlPrefix = "", urlPostfix = "") {
+
+    $.prototype.setLoadingState = function(state = true) {
+        if (this.is("[data-loadable]")) {
+            const $loadable = !!this.data('loadable') ? this.find(this.data('loadable')) : this;
+            if (!!$loadable.length) $loadable[`${state ? 'add' : 'remove'}Class`]('loading');
+        }
+    };
+
+    $.prototype.disableSubmit = function() {
+        this.setLoadingState();
+        this.find('[type="submit"]').attr('disabled', 'disabled').prop('disabled', true);
+    };
+
+    $.prototype.enableSubmit = function() {
+        this.setLoadingState(false);
+        this.find('[type="submit"]').removeAttr('disabled').prop('disabled', false);
+    };
+
     if ($(selector).length > 0) {
         $(document).on('submit', selector, function (e) {
             e.preventDefault();
+            // if ($(this).is('[data-captcha]')) {
+            //     if (!this.dataset.captcha) return false;
+            //     e.stopImmediatePropagation();
+            //     if (!$(this).find('[name="gc-token"]').length) {
+            //         const token = document.createElement('input');
+            //         $(token).attr({
+            //             name: 'gc-token',
+            //             type: 'hidden',
+            //             value: this.dataset.captcha
+            //         });
+            //         this.prepend(token);
+            //     } else {
+            //         $(this).find('[name="gc-token"]').val(this.dataset.captcha);
+            //     }
+            //     setTimeout((function () {
+            //         this.dataset.captcha = '';
+            //         this.find('[name="gc-token"]').remove();
+            //     }).bind(this), 120000);
+            // }
             const $this = $(this),
-                $button = $this.find('[type="submit"]'),
                 data = $this.data(),
                 formData = $this.attr("enctype") ? new FormData(this) : $this.serialize(),
                 dataType = data.datatype || "json",
@@ -46,8 +81,8 @@ export function initAjaxFormPlugin(ajaxFormHandler, selector = '.wrk.ajax-form',
                     method: method,
                     async: !!data.async,
                     beforeSend: function() {
-                        $button.prop('disabled', true);
-                        $this.find('.error-log, .head-message').removeClass('error success').html('');
+                        $this.disableSubmit();
+                        $this.find('.head-message, .error-log').removeClass('error success').html('');
                     },
                     success: function (result) {
                         if (!!data.handler && typeof window[data.handler] === 'function') {
@@ -56,10 +91,13 @@ export function initAjaxFormPlugin(ajaxFormHandler, selector = '.wrk.ajax-form',
                             ajaxFormHandler(result, $this);
                         } else {
                             if (result.success) {
-                                const $message = $this.find('.head-message');
-                                $message.addClass('success').html(result.message);
-                                $this.find('*').remove();
-                                $this.append($message);
+                                if ($this.data('target') && $($this.data('target').length)) {
+                                    $($this.data('target')).html(result.message)
+                                } else {
+                                    const $message = $this.find('.head-message');
+                                    $message.addClass('success').html(result.message);
+                                    $this.html($message);
+                                }
                                 if (data.reload) {
                                     setTimeout(function () {
                                         location.reload();
@@ -70,25 +108,28 @@ export function initAjaxFormPlugin(ajaxFormHandler, selector = '.wrk.ajax-form',
                                 if ('errors' in result) {
                                     for (let name in result.errors) {
                                         if (!result.errors.hasOwnProperty(name)) continue;
-                                        let $log = $('[name="' + name + '"]').parent().find('.error-log');
+                                        let $log = $this.find(`.error-log[data-for="${name}"]`);
                                         if (!$log.length) {
-                                            $log = $('<div>').addClass('error-log');
-                                            $(`[name="${name}"]`).after($log);
+                                            $log = $('<div>').addClass('error-log').attr('data-for', name);
+                                            $this.find(`[name="${name}"]`).after($log);
                                         }
                                         $log.addClass('error').html(result.errors[name]);
                                     }
                                 }
-                                $button.prop('disabled', false);
                             }
                         }
                     },
                     error: function (result) {
                         if (window.debugMode) console.log("WRK_ERROR: " + result.responseText);
                         $this.find('.head-message').addClass('error').html(result.message||data['error-message']);
-                        $button.prop('disabled', false);
                     },
+                    complete: function() {
+                        $this.enableSubmit();
+                        if (!!$this.data('captcha') && typeof grecaptcha === 'object') {
+                            grecaptcha.reset(window.captchas[$this.data('captcha')]);
+                        }
+                    }
                 };
-            if ($button.prop('disabled')) return false;
             let url = $this.attr("action");
             if (data.customAction) url = data.customAction;
             else if ($this.attr("action")) url = urlPrefix + url + urlPostfix;
@@ -99,6 +140,13 @@ export function initAjaxFormPlugin(ajaxFormHandler, selector = '.wrk.ajax-form',
             }
             $.ajax(url, options);
             return false;
+        });
+
+        $(document).on('change', `${selector} [type="file"].listable`, function (e) {
+            const $target = $(this).closest('form').find($(this).data('list'));
+            if ($target.length) {
+                $target.html(Object.values(this.files).map(f => $("<div>").html(f.name)));
+            }
         });
     }
 }
@@ -132,7 +180,7 @@ export function initCounterPlugin(dispatchEvent = false) {
 export function initDropDownPlugin() {
 
     const resetHandler = function () {
-        $(this).closest('.dropdown').removeClass('applied').find(':checked').prop('checked', false);
+        $(this).closest('.dropdown').removeClass('applied').find(':checked').removeAttr('checked').prop('checked', false);
         $(this).closest('.dropdown').find('[data-default]').each(function () {
             switch (this.tagName) {
                 case 'INPUT':
@@ -178,7 +226,7 @@ export function initDropDownPlugin() {
                     }
                 } else {
                     $options.css({
-                        left: 'calc((100% - 250px) / 2)',
+                        left: `calc(100% - ${$options.outerWidth(true)}px)`,
                     });
                     $options.find('.pick').css({
                         right: 0,
@@ -475,12 +523,15 @@ export function initSliderPlugin(settings = {}) {
                     $controls = $('<div>').addClass(classPrefix + 'slider-controls');
                     $(this).append($controls);
                 }
-                $controls.append([
-                    $('<div>').addClass(classPrefix + 'prev'),
-                    $('<div>').addClass(classPrefix + 'next'),
-                ])
-                settings.prevArrow = $(this).find('.' + classPrefix + 'prev');
-                settings.nextArrow = $(this).find('.' + classPrefix + 'next');
+                let $prev = $(this).find('.' + classPrefix + 'prev');
+                let $next = $(this).find('.' + classPrefix + 'next');
+                if (!$prev.length || !$next.length) {
+                    if (!$prev.length) $prev = $('<div>').addClass(classPrefix + 'prev');
+                    if (!$next.length) $next = $('<div>').addClass(classPrefix + 'next');
+                    $controls.append([$prev, $next]);
+                }
+                settings.prevArrow = $prev;
+                settings.nextArrow = $next;
             }
             if (settings.dots === true) {
                 if (!settings.appendDots) {
@@ -656,6 +707,8 @@ export function initPlugins(selector = 'meta[name="plugins"]') {
                 case 'tabs':
                     initTabsPlugin();
                     break;
+                default:
+                    console.error(`No such plugin can be included: ${plugins[i]}. Check the validity of the name.`);
             }
         }
     }

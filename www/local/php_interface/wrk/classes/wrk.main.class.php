@@ -15,11 +15,17 @@ class main
 
     const PHONE_EXP = "/^(\+?[0-9]{1,3})?(\s?\(?[0-9]{2,4}\)?\s?)?([0-9]{2,4}-?\s?){1,3}$/";
     const EMAIL_EXP = "/^[a-zA-Z0-9-\._]+@([-a-z0-9]+\.)+[a-z]{2,4}$/";
+    const DEFAULT_SIZE = 500;
     const STATUS_404 = 404;
 
     private static $response = array("status" => "error", "msg" => array());
 
-    public static function auth_user()
+    /**
+     * TODO under development!
+     *
+     * @return array
+     */
+    public static function _auth_user()
     {
         global $USER;
         $a_response = self::$response;
@@ -33,7 +39,12 @@ class main
         return $a_response;
     }
 
-    public static function reg_user()
+    /**
+     * TODO under development!
+     *
+     * @return array
+     */
+    public static function _reg_user()
     {
         global $USER;
         $a_response = self::$response;
@@ -71,7 +82,12 @@ class main
         return $a_response;
     }
 
-    public static function rec_user()
+    /**
+     * TODO under development!
+     *
+     * @return array
+     */
+    public static function _rec_user()
     {
         $a_response = self::$response;
         $a_response['msg'] = array();
@@ -103,7 +119,13 @@ class main
         return $a_response;
     }
 
-    public static function pass_moderation($arItem)
+    /**
+     * TODO under development!
+     *
+     * @param $arItem
+     * @return mixed
+     */
+    public static function _pass_moderation($arItem)
     {
         $a_mail_fields = array(
             "MAILTO" => $arItem["USER"]["EMAIL"],
@@ -113,7 +135,12 @@ class main
         return \CEvent::Send("MODERATION_PASSED", array("s1", "ru", "en"), $a_mail_fields);
     }
 
-    public static function get_ratings()
+    /**
+     * TODO under development!
+     *
+     * @return array
+     */
+    public static function _get_ratings()
     {
         $a_photos = self::get_iblock_elems(array(
             "iblock" => "photocont-gallery"
@@ -135,11 +162,15 @@ class main
         return $a_raitings;
     }
 
-    //returns: (Array) array of users of one partifular user if $b_unwrap is true.
-    //takes: $s_group - name of the user's group, $b_index_id - defines whether set users' ids as array's keys or not,
-    //$b_unwrap - return result as array of single user (cannot be used with $b_index_id = true and
-    // if more than one user returns only the first one
-    public static function get_user_list($s_group = false, $b_index_id = false, $b_unwrap = false)
+    /**
+     * Returns user list
+     *
+     * @param string $s_group - group name for filtering
+     * @param bool $b_index_id - use ids as indexes
+     * @param bool $b_unwrap - returns the only element as array
+     * @return array|bool|mixed
+     */
+    public static function get_user_list($s_group = '', $b_index_id = false, $b_unwrap = false)
     {
         $a_users = array();
         if ($s_group) {
@@ -159,14 +190,19 @@ class main
             if ($b_index_id) $a_users[$a_user["ID"]] = $a_user;
             else $a_users[] = $a_user;
         }
-        if (count($a_users) == 0) return false;
-        elseif (count($a_users) == 1 && $b_unwrap && !$b_index_id) return $a_users[0];
-        else return $a_users;
+        if (count($a_users) == 1 && $b_unwrap && !$b_index_id) return $a_users[0];
+        return $a_users;
     }
 
-    //returns: (int|bool) group id of user or false if not found.
-    //takes: $o_user - object of user, $s_role - particular name of the user group;
-    public static function get_user_group($o_user, $s_role = false)
+    /**
+     * TODO under development!
+     * Returns user group
+     *
+     * @param $o_user
+     * @param bool $s_role
+     * @return bool
+     */
+    public static function _get_user_group($o_user, $s_role = false)
     {
         $b_return = false;
         if ($s_role) {
@@ -190,46 +226,91 @@ class main
         return $b_return;
     }
 
-    //returns: (bool) validates user's password with input and returns the result
-    //takes: $userID - id of user, $password - user's password
-    public static function isUserPassword($userId, $password)
+    /**
+     * Checks the validity of user's password
+     *
+     * @param int|string $m_user_id - user id
+     * @param string $s_password - user password
+     * @return bool
+     */
+    public static function is_user_password($m_user_id, $s_password)
     {
-        $userData = CUser::GetByID($userId)->Fetch();
-        $salt = substr($userData['PASSWORD'], 0, (strlen($userData['PASSWORD']) - 32));
-        $realPassword = substr($userData['PASSWORD'], -32);
-        $password = md5($salt . $password);
-        return ($password == $realPassword);
+        $a_user_data = \CUser::GetByID($m_user_id)->Fetch();
+        $s_salt = substr($a_user_data['PASSWORD'], 0, (strlen($a_user_data['PASSWORD']) - 32));
+        $s_real_password = substr($a_user_data['PASSWORD'], -32);
+        $s_password = md5($s_salt . $s_password);
+        return ($s_password == $s_real_password);
     }
 
-    public static function get_base_price($id, $fallback = '') {
-        return \CPrice::GetBasePrice($id)?:$fallback;
+    /**
+     * Returns Bitrix Price array
+     *
+     * @param int|string $m_id - item id
+     * @param string $s_fallback - fallback for empty result
+     * @return string
+     */
+    public static function get_base_price($m_id, $s_fallback = '') {
+        return \CPrice::GetBasePrice($m_id)?:$s_fallback;
     }
 
-    public static function get_file($file) {
-        return \CFile::GetFileArray($file);
+    /**
+     * Retrieves Bitrix Property array or empty array if fails
+     *
+     * @param int|string $m_id - item id
+     * @param string $s_prop_code - property code
+     * @return array
+     */
+    public static function get_element_prop($m_id, $s_prop_code) {
+        $a_elem = self::get_iblock_elems(['id' => $m_id]);
+        if (!empty($a_elem)) return [];
+        return \CIBlockElement::GetProperty($a_elem['IBLOCK_ID'], $a_elem['ID'], 'CODE', 'ASC', ['CODE' => $s_prop_code])->Fetch()[$s_prop_code]?:[];
     }
 
-    public static function get_files($files) {
-        foreach ($files as &$file) {
-            $file = self::get_file($file);
+    /**
+     * Retrieves Bitrix File array
+     *
+     * @param int|string $m_file - file id
+     * @return mixed
+     */
+    public static function get_file($m_file) {
+        return \CFile::GetFileArray($m_file);
+    }
+
+    /**
+     * Retrieves an array of multiple Bitrix Files
+     *
+     * @param array $a_files - array of files ids
+     * @return mixed
+     */
+    public static function get_files($a_files) {
+        foreach ($a_files as &$m_file) {
+            $m_file = self::get_file($m_file);
         }
-        return $files;
+        return $a_files;
     }
 
-    public static function resize_image($img, $arSizes = [500], $iMode = BX_RESIZE_IMAGE_PROPORTIONAL_ALT) {
-        return \CFile::ResizeImageGet($img,[
-            'width' => $arSizes[0],
-            'height' => $arSizes[1]?:$arSizes[0],
-        ], $iMode);
+    /**
+     * Returns an array of resized image
+     *
+     * @param int|string $m_img - image file ID
+     * @param int[]|string[] $a_sizes - array of ints sizes as: [width [,height]]. If height is skipped, width is used instead
+     * @param int $i_mode - Bitrix Resize Mode
+     * @return mixed
+     */
+    public static function resize_image($m_img, $a_sizes = [], $i_mode = BX_RESIZE_IMAGE_PROPORTIONAL_ALT) {
+        return \CFile::ResizeImageGet($m_img,[
+            'width' => $a_sizes[0]?:self::DEFAULT_SIZE,
+            'height' => $a_sizes[1]?:$a_sizes[0]?:self::DEFAULT_SIZE,
+        ], $i_mode);
     }
 
-    public static function resize_images($images, $params = ['width' => 500, 'height' => 500, 'mode' => BX_RESIZE_IMAGE_PROPORTIONAL_ALT], $auxParams = []) {
-        if (!$params) $images = self::get_files($images);
+    public static function resize_images($images, $params = ['width' => self::DEFAULT_SIZE, 'height' => self::DEFAULT_SIZE, 'mode' => BX_RESIZE_IMAGE_PROPORTIONAL_ALT], $auxParams = []) {
         if (empty($auxParams)) $auxParams = [['', $params['width'], $params['height'], $params['mode']]];
         foreach ($images as &$image) {
-            if (!is_array($image)) $image = self::get_file($image);
+            $image = self::get_file($image);
+            if ($params !== false) $image = array_merge($image, self::resize_image($image, [$params['width']?:self::DEFAULT_SIZE, $params['height']?:self::DEFAULT_SIZE], $params['mode']?:BX_RESIZE_IMAGE_PROPORTIONAL_ALT));
             foreach ($auxParams as $auxParam) {
-                $resized = self::resize_image($image['ID'],$auxParam[1]?:$params['width'], $auxParam[2]?:$params['height'], $auxParam[3]?:$params['mode']);
+                $resized = self::resize_image($image,[$auxParam[1]?:$params['width']?:self::DEFAULT_SIZE, $auxParam[2]?:$params['height']?:self::DEFAULT_SIZE], $auxParam[3]?:$params['mode']?:BX_RESIZE_IMAGE_PROPORTIONAL_ALT);
                 if ($auxParam[0]) $image[$auxParam[0]] = $resized;
                 else $image = $resized;
             }
@@ -251,10 +332,10 @@ class main
             if ($b_get_files) {
                 $a_iblock['PICTURE'] = \CFile::GetFileArray($a_iblock['PICTURE']);
             }
+            if ($a_params["only"] || $a_params["id"]) return $a_iblock;
             $a_params['index'] ? $a_iblocks[$a_iblock[$a_params['index']]] = $a_iblock : $a_iblocks[] = $a_iblock;
         }
-        if ($a_params["only"] || $a_params["id"]) return $a_iblocks[0];
-        else return $a_iblocks;
+        return $a_iblocks;
     }
 
     //returns: (Array|bool) array of found IBlock elements or false if there are no any ones
@@ -282,7 +363,7 @@ class main
                 $a_elem['DETAIL_PICTURE'] = \CFile::GetFileArray($a_elem['DETAIL_PICTURE']);
             }
             if ($b_get_props) {
-                $a_elem["PROPS"] = $o_elem->GetProperties();
+                $a_elem["PROPS"] = $o_elem->GetProperties($a_params['props']['order']?:false,$a_params['props']['filter']?:[]);
                 if ($b_get_files) {
                     foreach ($a_elem['PROPS'] as $key => &$prop) {
                         if ($prop['PROPERTY_TYPE'] !== 'F') continue;
@@ -294,18 +375,16 @@ class main
                     }
                 }
             }
+            if ($a_params["only"] || !!$a_params['id']) return $a_elem;
             $i++;
             $a_params['index'] ? $a_elems[$a_elem[$a_params['index']]] = $a_elem : $a_elems[] = $a_elem;
         }
-        if ($a_params["only"] || !!$a_params['id']) return $a_elems[0];
-        else return $a_elems;
+        return $a_elems;
     }
 
     public static function get_iblock_sections($a_params, $b_get_files = false, $b_get_user_fields = false)
     {
         $a_sections = [];
-        $a_select = ($a_params["select"]) ?: ['*'];
-        if ($b_get_user_fields) $a_select[] = 'UF_*';
         if (is_array($a_params["filter"])) $a_filter = $a_params["filter"];
         $a_sort = ($a_params["sort"]) ?: ['SORT' => 'ASC', 'ID' => "ASC"];
         if ($a_params["user"]) $a_filter["CREATED_BY"] = $a_params["user"];
@@ -313,11 +392,26 @@ class main
         if ($a_params["iblock"]) $a_filter["IBLOCK_CODE"] = $a_params["iblock"];
         if ($a_params["inactive"]) $a_filter["ACTIVE"] = "";
         else $a_filter["ACTIVE"] = "Y";
+        $a_select = ($a_params["select"]) ?: ['*'];
+        if ($b_get_user_fields) {
+            $a_select[] = 'UF_*';
+            if (!!$a_params['iblock'] && !$a_params['filter']['IBLOCK_ID']) {
+                $a_filter['IBLOCK_ID'] = self::get_iblock_id($a_params['iblock']);
+            }
+        }
         $o_sections = \CIBlockSection::GetList($a_sort, $a_filter, $a_params['count']?:false, $a_select);
         while ($a_section = $o_sections->GetNext()) {
             if ($b_get_files) {
                 $a_section['PICTURE'] = \CFile::GetFileArray($a_section['PICTURE']);
                 $a_section['DETAIL_PICTURE'] = \CFile::GetFileArray($a_section['DETAIL_PICTURE']);
+                if (!empty($a_params['files'])) {
+                    foreach ($a_params['files'] as $s_field) {
+                        if (array_key_exists($s_field, $a_section)) {
+                            if (is_array($a_section[$s_field])) $a_section[$s_field] = self::get_files($a_section[$s_field]);
+                            else self::get_file($a_section[$s_field]);
+                        }
+                    }
+                }
             }
             $a_params['index'] ? $a_sections[$a_section[$a_params['index']]] = $a_section : $a_sections[] = $a_section;
         }
@@ -357,9 +451,12 @@ class main
 
     //returns: (Array) an array of found properties
     //takes: $s_iblock_code - code of particular IBlock, if is not defined, return contains all the properties.
-    public static function get_iblock_props($s_iblock_code)
+    public static function get_iblock_props($a_params)
     {
-        $o_properties = \CIBlockProperty::GetList(array(), array("IBLOCK_CODE" => $s_iblock_code));
+        $a_filter = $a_params['filter']?:[];
+        $a_order = $a_params['order']?:[];
+        if (!empty($a_params['iblock'])) $a_filter['IBLOCK_CODE'] = $a_params['IBLOCK_CODE'];
+        $o_properties = \CIBlockProperty::GetList($a_order, $a_filter);
         $a_properties = array();
         while ($a_property = $o_properties->GetNext()) {
             if ($a_property["PROPERTY_TYPE"] == "L") {
@@ -460,6 +557,12 @@ class main
             $a_entries = array();
             $rs_result = $entity_class::GetList(array("select" => $a_params['select'] ?: ['*'], "filter" => $a_filter, "order" => $a_params['order'] ?: ["ID" => "ASC"]));
             while ($a_entry = $rs_result->Fetch()) {
+                if (is_array($a_params['files']) && count($a_params['files'])) {
+                    foreach ($a_params['files'] as $s_code) {
+                        $method  = is_array($a_entry[$s_code]) ? 'get_files' : 'get_file';
+                        $a_entry[$s_code] = self::$method($a_entry[$s_code]);
+                    }
+                }
                 if ($a_params["index"]) $a_entries[$a_entry[$a_params["index"]]] = $a_entry;
                 else $a_entries[] = $a_entry;
             }

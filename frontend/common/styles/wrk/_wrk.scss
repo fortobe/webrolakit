@@ -498,7 +498,7 @@
         }
 
         &.ai-fe {
-            align-items: flex-start;
+            align-items: flex-end;
         }
 
         &.ai-st {
@@ -507,6 +507,33 @@
 
         &.jc {
 
+            &-st {
+                justify-content: stretch;
+
+                & > * {
+                    flex: 1 1 auto;
+                }
+            }
+        }
+
+        & > .as-fs {
+            align-self: flex-start;
+        }
+
+        & > .as-fe {
+            align-self: flex-end;
+        }
+
+        & > .as-st {
+            align-self: stretch;
+        }
+
+        & > .as-bl {
+            align-self: baseline;
+        }
+
+        & > .as-c {
+            align-self: center;
         }
     }
 
@@ -1254,7 +1281,7 @@
                 &.active {
                     opacity: 1;
                     position: relative;
-                    transition: opacity .3s ease;
+                    transition: opacity .5s ease-out;
                     z-index: 1;
                 }
 

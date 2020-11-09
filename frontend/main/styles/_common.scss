@@ -109,6 +109,26 @@ video {
     }
 }
 
+.burger {
+    color: currentColor !important;
+    display: inline-block;
+    width: 40px;
+
+    &::before,
+    &::after,
+    span
+    {
+        border-top: 3px solid;
+        content: '';
+        display: block;
+        transition: all .3s ease;
+    }
+
+    span {
+        margin: 12px 0;
+    }
+}
+
 .color {
     width: 18px;
     height: 18px;
@@ -221,6 +241,48 @@ video {
             margin-top: $mrgs;
         }
     }
+
+    &.block-links {
+
+        .cell {
+
+            .item {
+
+                .image {
+                    overflow: hidden;
+                    position: relative;
+
+                    img {
+                        transition: all .3s ease-in-out;
+                    }
+
+                    &::after {
+                        @include stretch;
+                        content: '';
+                        z-index: 1;
+                        opacity: 0;
+                        background-color: rgba($black, .1);
+                        transition: opacity .3s ease;
+                    }
+                }
+
+                &:hover {
+                    color: inherit;
+
+                    .image {
+
+                        img {
+                            transform: scale(1.06);
+                        }
+
+                        &::after {
+                            opacity: 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 .grided {
@@ -284,6 +346,20 @@ video {
 }
 
 .item {
+
+    .image {
+
+        img {
+            transition: transform .3s ease-out;
+        }
+
+        &:hover {
+
+            img {
+                transform: scale(1.03);
+            }
+        }
+    }
 
     .desc {
         margin: $mrgs auto 0;

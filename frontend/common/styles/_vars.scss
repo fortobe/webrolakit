@@ -159,6 +159,7 @@ $bp_xs: 320;
     display: flex;
     align-items: $align;
     justify-content: $justify;
+    flex-wrap: wrap;
     @if ($justify == stretch) {
         & > * {
             flex: 1 1 auto;
@@ -311,5 +312,25 @@ $bp_xs: 320;
     }
     100% {
         transform: rotateX(360deg);
+    }
+}
+
+@keyframes widthIn {
+    from {
+        width: 0;
+    }
+    to {
+        width: 100%;
+    }
+}
+
+@keyframes widthOut {
+    from {
+        left: 0;
+        width: 100%;
+    }
+    to {
+        left: 100%;
+        width: 0;
     }
 }
