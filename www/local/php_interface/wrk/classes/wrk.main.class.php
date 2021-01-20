@@ -298,26 +298,47 @@ class main
      * @return mixed
      */
     public static function resize_image($m_img, $a_sizes = [], $i_mode = BX_RESIZE_IMAGE_PROPORTIONAL_ALT) {
-        return \CFile::ResizeImageGet($m_img,[
+        return \CFile::ResizeImageGet($m_img['ID']?:$m_img,[
             'width' => $a_sizes[0]?:self::DEFAULT_SIZE,
             'height' => $a_sizes[1]?:$a_sizes[0]?:self::DEFAULT_SIZE,
         ], $i_mode);
     }
 
-    public static function resize_images($images, $params = ['width' => self::DEFAULT_SIZE, 'height' => self::DEFAULT_SIZE, 'mode' => BX_RESIZE_IMAGE_PROPORTIONAL_ALT], $auxParams = []) {
-        if (empty($auxParams)) $auxParams = [['', $params['width'], $params['height'], $params['mode']]];
-        foreach ($images as &$image) {
-            $image = self::get_file($image);
-            if ($params !== false) $image = array_merge($image, self::resize_image($image, [$params['width']?:self::DEFAULT_SIZE, $params['height']?:self::DEFAULT_SIZE], $params['mode']?:BX_RESIZE_IMAGE_PROPORTIONAL_ALT));
-            foreach ($auxParams as $auxParam) {
-                $resized = self::resize_image($image,[$auxParam[1]?:$params['width']?:self::DEFAULT_SIZE, $auxParam[2]?:$params['height']?:self::DEFAULT_SIZE], $auxParam[3]?:$params['mode']?:BX_RESIZE_IMAGE_PROPORTIONAL_ALT);
-                if ($auxParam[0]) $image[$auxParam[0]] = $resized;
-                else $image = $resized;
+    /**
+     * Resizes multiple images for several dimentions
+     * @param array $a_images - array of images
+     * @param array $a_sizes - array of sizes. if key provided - returns each resize under the appropriate key, otherwise merges with original array.
+     * @param bool $b_get_file - if true - retrieves the original array
+     * @return mixed - array of resized images
+     */
+    public static function resize_images($a_images, $a_sizes = [self::DEFAULT_SIZE], $b_get_file = true) {
+        foreach ($a_images as &$image) {
+            if (empty($image)) continue;
+            if (!is_array($image) && $b_get_file) $image = self::get_file($image);
+            foreach ($a_sizes as $key => $auxParam) {
+                $resized = self::resize_image($image,[$a_sizes[0]?:self::DEFAULT_SIZE, $a_sizes[1]?:$a_sizes[0]?:self::DEFAULT_SIZE], $a_sizes[2]?:BX_RESIZE_IMAGE_PROPORTIONAL_ALT);
+                if (!is_numeric($key)) $image[$key] = $resized;
+                else $image = array_merge($image, $resized);
             }
         }
-        return $images;
+        return $a_images;
     }
 
+    /**
+     * Retrieves the list of IBlocks as arrays
+     *
+     * @param array $a_params - array of the parameters:
+     * [code] string - a code of the Iblock
+     * [count] bool - retrieve the count of elements in each IBlock
+     * [filter] array - Bitrix filter notation
+     * [id] int|string - an ID of the IBlock
+     * [inactive] bool - retrieve all IBlocks despote of ACTIVE field
+     * [index] string - name of the fields to index IBlocks by it's value (use cautiously, recommended fields containing only unique values e.g. ID)
+     * [only] - return the only one unwrapped IBLock array. the same behaviour provided for the [id] param
+     * [sort] array - Bitrix sort notation
+     * @param bool $b_get_files - retrieve files for IBlocks
+     * @return array
+     */
     public static function get_iblocks($a_params, $b_get_files = true)
     {
         $a_iblocks = [];
@@ -338,10 +359,24 @@ class main
         return $a_iblocks;
     }
 
-    //returns: (Array|bool) array of found IBlock elements or false if there are no any ones
-    //takes: $a_params - an array of parameter, may contain such fields as: "filter" - particular array formatted as Bitrix filter for GetList,
-    //"user" - user id (result is filtered by), "iblock" - code of particular IBlock, "inactive" - if it's defined result
-    //includes inactive elements, "sort" - an array formatted as Bitrix sort for GetList
+    /**
+     * Retrieves the list of IBlockElements as arrays
+     *
+     * @param array $a_params - array of the parameters:
+     * [filter] array - Bitrix filter notation
+     * [group] - array of fields to group IBlockElements
+     * [id] int|string - an ID of the IBlockElement
+     * [inactive] bool - retrieve all IBlocksElements despote of ACTIVE field
+     * [index] string - name of the fields to index IBlockElements by it's value (use cautiously, recommended fields containing only unique values e.g. ID)
+     * [only] - return the only one unwrapped IBLockElement array. the same behaviour provided for the [id] param
+     * [props] - array of properties parameters (using Bitrix notation). available fields - [order], [filter]
+     * [select] array - array of fields to select
+     * [sort] array - Bitrix sort notation
+     * [user] int|string - user id to select IBlockElements created by user
+     * @param bool $b_get_props - retrieve properties for each IBlockElements. If [props] is not set, retrieves all the properties
+     * @param bool $b_get_files - retrieves file arrays for each IBlockElement, even for the property set as file
+     * @return array
+     */
     public static function get_iblock_elems($a_params, $b_get_props = false, $b_get_files = false)
     {
         $a_elems = $a_filter = array();
@@ -354,13 +389,18 @@ class main
         if ($a_params["iblock"]) $a_filter["IBLOCK_CODE"] = $a_params["iblock"];
         if ($a_params["inactive"]) $a_filter["ACTIVE"] = "";
         else $a_filter["ACTIVE"] = "Y";
-        $o_elems = \CIBlockElement::GetList($a_sort, $a_filter, $a_group, false, $a_select);
+        $o_elems = \CIBlockElement::GetList($a_sort, $a_filter, $a_group, $a_params['nav']?:false, $a_select);
         $i = 0;
         while ($o_elem = $o_elems->GetNextElement()) {
             $a_elem = $o_elem->GetFields();
             if ($b_get_files) {
                 $a_elem['PREVIEW_PICTURE'] = \CFile::GetFileArray($a_elem['PREVIEW_PICTURE']);
                 $a_elem['DETAIL_PICTURE'] = \CFile::GetFileArray($a_elem['DETAIL_PICTURE']);
+                if (is_array($b_get_files)) {
+                    foreach ($b_get_files as $s_field) {
+                        $a_elem[$s_field] = self::{'get_file'.(is_array($s_field) ? 's' : '')}($a_elem[$s_field]);
+                    }
+                }
             }
             if ($b_get_props) {
                 $a_elem["PROPS"] = $o_elem->GetProperties($a_params['props']['order']?:false,$a_params['props']['filter']?:[]);
@@ -382,6 +422,23 @@ class main
         return $a_elems;
     }
 
+    /**
+     * Retrieves the list of IBlockSections as arrays
+     *
+     * @param array $a_params - array of the parameters:
+     * [files] array - array of fields codes containing files to retrieve
+     * [filter] array - Bitrix filter notation
+     * [id] int|string - an ID of the IBlockSection
+     * [inactive] bool - retrieve all IBlockSections despote of ACTIVE field
+     * [index] string - name of the fields to index IBlockSEction by it's value (use cautiously, recommended fields containing only unique values e.g. ID)
+     * [only] - return the only one unwrapped IBLock array. the same behaviour provided for the [id] param
+     * [select] array - array of fields to select
+     * [sort] array - Bitrix sort notation
+     * [user] int|string - user id to select IBlockSections created by user
+     * @param bool $b_get_files - retrieve files
+     * @param bool $b_get_user_fields - retrieve user fields
+     * @return array|mixed
+     */
     public static function get_iblock_sections($a_params, $b_get_files = false, $b_get_user_fields = false)
     {
         $a_sections = [];
@@ -419,10 +476,24 @@ class main
         else return $a_sections;
     }
 
+    /**
+     * Returns Section ID or false if doesn't exist
+     *
+     * @param $s_iblock_code - IBlock Code
+     * @param $s_iblock_section_code - IBlockSection Code
+     * @return string|bool
+     */
     public static function get_section_id_by_code($s_iblock_code, $s_iblock_section_code) {
         return \CIBlockSection::GetList([],['IBLOCK_CODE' => $s_iblock_code, 'CODE' => $s_iblock_section_code], false, ['ID'])->Fetch()['ID']?:false;
     }
 
+    /**
+     * Returns list of enumerates of LIST type property or false in case of error
+     *
+     * @param $i_block_id - Iblock ID
+     * @param $s_property_code - Property code
+     * @return array|bool
+     */
     public static function get_enum_list($i_block_id, $s_property_code)
     {
         if ($i_block_id > 0) {
@@ -443,14 +514,26 @@ class main
         } else return false;
     }
 
+    /**
+     * Retrieves Iblock ID by its code or false in case of error
+     *
+     * @param $s_code - IBlock Code
+     * @return string|bool
+     */
     public static function get_iblock_id($s_code)
     {
-        $d_iblock = \CIBlock::GetList(array(), array("CODE" => $s_code))->Fetch();
-        return $d_iblock["ID"];
+        return \CIBlock::GetList(array(), array("CODE" => $s_code))->Fetch()["ID"]?:false;
     }
 
-    //returns: (Array) an array of found properties
-    //takes: $s_iblock_code - code of particular IBlock, if is not defined, return contains all the properties.
+    /**
+     * Retrieves the list of properties due to set parameters
+     *
+     * @param array $a_params - list parameters:
+     * [filter] array - Bitrix notations filter
+     * [order] array|bool - Bitrix notation order
+     * [iblock] string - IBlock code
+     * @return array
+     */
     public static function get_iblock_props($a_params)
     {
         $a_filter = $a_params['filter']?:[];
@@ -470,6 +553,15 @@ class main
         return $a_properties;
     }
 
+    /**
+     * Returns an array of IBlockProperty values
+     *
+     * @param string $s_iblock - IBlock code
+     * @param string $s_prop_code - Property code
+     * @param array $a_filter - Bitrix notation property filter
+     * @param bool $b_counts - if set as true the returning value si going to be an arranged array of counted values grouped by the value as the key
+     * @return array
+     */
     public static function get_iblock_prop_vals($s_iblock, $s_prop_code, $a_filter = [], $b_counts = true) {
         $a_result = [];
         $s_prop_code = 'PROPERTY_'.strtoupper($s_prop_code);
@@ -481,7 +573,16 @@ class main
         return $b_counts ? $a_result : array_keys($a_filter);
     }
 
-    public static function get_iblock_props_vals_mapped($s_iblock, $a_select = [], $a_filter = [], $bSkipEmpty = true) {
+    /**
+     * Returns an array of mapped properties with grouped by value counters
+     *
+     * @param string $s_iblock - IBlock code
+     * @param array $a_select - an array of selected fields
+     * @param array $a_filter - Bitrix notation filtering array
+     * @param bool $b_skip_empty - if set true, skips empty value cases
+     * @return array
+     */
+    public static function get_iblock_props_vals_mapped($s_iblock, $a_select = [], $a_filter = [], $b_skip_empty = true) {
         $a_result = [];
         if (!!$s_iblock) $a_filter['IBLOCK_CODE'] = $s_iblock;
         if (!is_array($a_select)) {
@@ -500,7 +601,7 @@ class main
                 }
             } else {
                 $a_filter = [];
-                if ($bSkipEmpty) $a_filter['EMPTY'] = "N";
+                if ($b_skip_empty) $a_filter['EMPTY'] = "N";
                 $a_props = $o_val->GetProperties(['CODE' => 'ASC'], $a_filter);
                 foreach ($a_props as $a_prop) {
                     if (is_array($a_prop['VALUE']))
@@ -513,10 +614,15 @@ class main
         return $a_result;
     }
 
-    //returns: (Array|int) an array of found property of just it's id
-    //takes: $s_field_val - value of specific property or "false" if to search by property id, $s_property_code - code
-    //of property or it's id (if the first argument equals "false"), $s_iblock_code = code of specific iblock
-    //(might not be defined), $s_xml_id - XML_ID of property (can be defined only if IBlock code if defined)
+    /**
+     * Returns a property or its id (depends on arguments)
+     *
+     * @param bool $s_field_val - a value of the specific property or "false" if need to search by property id
+     * @param string|int $s_property_code - property code or it's id (if the first argument is "false")
+     * @param string $s_iblock_code - IBlock code
+     * @param string $s_xml_id -  Property XML_ID (can be defined only if IBlock code if defined)
+     * @return array|int
+     */
     public static function get_prop_ids($s_field_val = false, $s_property_code = "", $s_iblock_code = "", $s_xml_id = "")
     {
         if ($s_field_val === false) $a_filter = array("CODE" => $s_property_code);
@@ -538,21 +644,30 @@ class main
         return ($s_field_val && $s_field_val > 0) ? intval($a_props['ID']) : $a_props;
     }
 
-    //returns: (Array|false) ar array of HLblock entries or entity class (or false if both are not found)
-    //takes: $d_id - name of the HLBlock or it's id (if $a_param['block_id'] is defined), $a_params - set of parameters
-    //that can includes the following fields: "block_id" (bool) - whether perform search by HLBlock id, "filter" -
-    // Bitrix formatted filter (use Bitrix documentation for HLBlocks), "return_class" (bool) - whether return entity,
-    //"index" (string) - contains code of particular HLBlock field which will be defined as an array's key;
-    public static function get_hlblock_entries($d_id, $a_params = [])
+    /**
+     * Returns ar array of HLblock entries or entity class (or false if both are not found)
+     *
+     * @param int|string $m_id - HILoadBlock id or its code
+     * @param array $a_params - array or parameters with following keys:
+     * [entity] bool - if is true - returns the class entity
+     * [files] array - a list of fields containing files to retrieve
+     * [filter] array - Bitrix notation filter
+     * [index] string - name of the field to index the final array by its value
+     * [only] bool - if is true - returns the only one unwrapped element
+     * [order] array - Bitrix notation order array
+     * [select] array - a list of the fields to select
+     * @return array|bool|mixed
+     */
+    public static function get_hlblock_entries($m_id, $a_params = [])
     {
-        if (!$a_params["block_id"]) {
-            $d_id = self::get_hlblock_id($d_id);
+        if (!is_numeric($m_id)) {
+            $m_id = self::get_hlblock_id($m_id);
         }
         $a_filter = $a_params['filter'] ?: [];
-        $hlblock = HL\HighloadBlockTable::getById($d_id)->fetch();
-        $entity = HL\HighloadBlockTable::compileEntity($hlblock);
+        $hlblock = \HL\HighloadBlockTable::getById($m_id)->fetch();
+        $entity = \HL\HighloadBlockTable::compileEntity($hlblock);
         $entity_class = $entity->getDataClass();
-        if ($a_params["return_class"]) return $entity_class;
+        if ($a_params["entity"]) return $entity_class;
         else {
             $a_entries = array();
             $rs_result = $entity_class::GetList(array("select" => $a_params['select'] ?: ['*'], "filter" => $a_filter, "order" => $a_params['order'] ?: ["ID" => "ASC"]));
@@ -571,21 +686,30 @@ class main
         }
     }
 
-    //returns: (int) id of found HLBlock
-    //takes: $s_hl - name of the required HLBlock;
+    /**
+     * Returns HIloadBlock id by its code
+     *
+     * @param string $s_hl - HLBlock code
+     * @return mixed
+     */
     public static function get_hlblock_id($s_hl)
     {
         global $DB;
-        $rs_result = $DB->Query("SELECT id FROM `b_hlblock_entity` WHERE name = '" . $s_hl . "'");
-        $rs_result = $rs_result->Fetch();
-        return $rs_result["id"];
+        return $DB->Query("SELECT id FROM `b_hlblock_entity` WHERE name = '{$s_hl}'")->Fetch()["id"]?:false;
     }
 
-    public static function get_option($iID, $bWithHTML = false)
+    /**
+     * Returns PREVIEW_TEXT of an element provided vie its ID
+     *
+     * @param int|string $i_id - IBlockElement ID
+     * @param bool $b_html - keep html switch
+     * @return bool|string
+     */
+    public static function get_option($i_id, $b_html = false)
     {
-        $res = CIBlockElement::GetByID($iID);
+        $res = \CIBlockElement::GetByID($i_id);
         if ($ar_res = $res->GetNext()) {
-            if ($bWithHTML)
+            if ($b_html)
                 return $ar_res['PREVIEW_TEXT'];
             else
                 return strip_tags($ar_res['PREVIEW_TEXT']);
@@ -593,41 +717,61 @@ class main
             return false;
     }
 
-    public static function get_file_option($iID, $b_path)
+
+    /**
+     * Returns the the file array of IBlockElement or its path by its code
+     *
+     * @param int|string $i_id - IBlockElement id
+     * @param string $s_field - field name or property code of IBlockElement
+     * @param bool $b_path - if is true returns file path
+     * @return array|string|bool - returns fale in case of error or non exist
+     */
+    public static function get_file_option($i_id, $s_field = 'PREVIEW_PICTURE', $b_path = true)
     {
-        $res = CIBlockElement::GetByID($iID);
+        $res = \CIBlockElement::GetByID($i_id);
         if ($ar_res = $res->GetNext()) {
-            if ($ar_res['PREVIEW_PICTURE'])
-                if (is_array($ar_res["PREVIEW_PICTURE"])) {
-                    return $ar_res["PREVIEW_PICTURE"];
-                } else {
-                    if (intval($ar_res["PREVIEW_PICTURE"]) > 0) {
-                        $a_ret = \CFile::GetFileArray($ar_res["PREVIEW_PICTURE"]);
-                        if ($b_path) return $a_ret["SRC"];
-                        else return $a_ret;
-                    } else return false;
-                }
-            else {
-                $res = CIBlockElement::GetProperty(1, $iID, array(), array("CODE" => "FILE"));
-                $ar_res = $res->GetNext();
-                if (is_array($ar_res["VALUE"])) {
-                    return $ar_res["VALUE"];
-                } else {
-                    if (intval($ar_res["VALUE"]) > 0) {
-                        $a_ret = \CFile::GetFileArray($ar_res["VALUE"]);
-                        if ($b_path) return $a_ret["SRC"];
-                        else return $a_ret;
-                    } else return false;
-                }
+            $a_ret = false;
+            switch ($s_field) {
+                case 'PREVIEW_PICTURE':
+                case 'DETAIL_PICTURE':
+                    if (is_array($ar_res[$s_field])) {
+                        $a_ret = $ar_res[$s_field];
+                    } else {
+                        if (intval($ar_res[$s_field]) > 0) {
+                            $a_ret = \CFile::GetFileArray($ar_res[$s_field]);
+                        } else return false;
+                    }
+                    if ($b_path) return $a_ret["SRC"];
+                    else return $a_ret;
+                    break;
+                default:
+                    $res = \CIBlockElement::GetProperty($ar_res['IBLOCK_ID'], $i_id, array(), array("CODE" => $s_field));
+                    $ar_res = $res->GetNext();
+                    if (is_array($ar_res["VALUE"])) {
+                        $a_ret = $ar_res["VALUE"];
+                    } else {
+                        if (intval($ar_res["VALUE"]) > 0) {
+                            $a_ret = \CFile::GetFileArray($ar_res["VALUE"]);
+                        } else return false;
+                    }
+                    if ($b_path) return $a_ret["SRC"];
+                    else return $a_ret;
             }
         } else return false;
     }
 
-    public static function get_name_option($iID, $bStrip = true)
+    /**
+     * Returns the name of IBlockElement
+     *
+     * @param int|string $i_id - IBlockElement id
+     * @param bool $b_html - if is true keeps html
+     * @return bool|string - returns false in case of fail or error
+     */
+    public static function get_name_option($i_id, $b_html = false)
     {
-        $res = CIBlockElement::GetByID($iID);
+        $res = \CIBlockElement::GetByID($i_id);
         if ($ar_res = $res->GetNext())
-            if ($bStrip)
+            if (!$b_html)
                 return strip_tags($ar_res['NAME']);
             else
                 return $ar_res['NAME'];
@@ -635,22 +779,21 @@ class main
             return false;
     }
 
-    public static function get_mail_template($iID, $b_html = true)
+    /**
+     * Sends an email
+     *
+     * @param array $a_message - an array of parameters containing following fields:
+     * [body] string - the body of the message
+     * [recipient] string - email address of the recipient
+     * [sender] string - sender email address
+     * [sender-name] string - the name of the sender
+     * [subject] string - email subject
+     * @param string $s_type - name of the template
+     * @return bool - returns false in case of error
+     */
+    public static function send_mail($a_message, $s_type = 'mail')
     {
-        $sBody = getOption($iID, $b_html);
-        $sTheme = trim(str_replace("Шаблон:", "", getNameOption($iID)));
-        return array("body" => $sBody, "subject" => $sTheme);
-    }
-
-    //returns: (bool) whether successful or not was the email sending
-    //takes: $a_message - an array of email parameters, must contain fields: "subject", "sender" - email of sender,
-    // "sender-name", "recipient" - email of recipient.
-    public static function send_mail($a_message, $s_type = false)
-    {
-        switch ($s_type) {
-            default:
-                $s_template = 'templates/mail_template.php';
-        }
+        $s_template = "templates/{$s_type}_template.php";
         if (!$a_message['body']) {
             ob_start();
             ob_implicit_flush(true);
@@ -659,10 +802,14 @@ class main
             ob_get_clean();
         }
         $o_mail = new \wrk\classes\mailer($a_message['sender'], $a_message['sender-name']);
-        $b_mail = $o_mail->SendMail($a_message['recipient'], $a_message['subject'], $a_message['body']);
-        return $b_mail;
+        return $o_mail->SendMail($a_message['recipient'], $a_message['subject'], $a_message['body']);
     }
 
+    /**
+     * Sets the document status
+     *
+     * @param int $m_status - status code
+     */
     public static function set_status($m_status = self::STATUS_404) {
         switch ($m_status) {
             case 404:
@@ -672,18 +819,25 @@ class main
         }
     }
 
-    public static function Reindex_Search()
+    /**
+     * Search results reindexing procedure
+     */
+    public static function reindex_search()
     {
-        $Result = false;
-        $Result = CSearch::ReIndexAll(true, 60);
+        $Result = \CSearch::ReIndexAll(true, 60);
         while (is_array($Result)) {
-            $Result = CSearch::ReIndexAll(true, 60, $Result);
+            $Result = \CSearch::ReIndexAll(true, 60, $Result);
         }
-        return "Reindex_Search();";
     }
 
-    //returns: (string|false) url of uploaded file or false if the failure took place
-    //takes: $s_path - local file path, $d_name - file's name, $s_disk_path - path at Yandex Disk
+    /**
+     * Uploads the file to remote Yandex Disc
+     *
+     * @param $s_path - file path
+     * @param $d_name - Yandex Disc name
+     * @param bool $s_disk_path - Yandex dist path
+     * @return string|bool - returns url string in case of success, otherwise returns false
+     */
     public static function send_to_remote_disk($s_path, $d_name, $s_disk_path = false)
     {
         global $o_yadisk;
@@ -695,10 +849,9 @@ class main
                 'name' => $d_name
             )
         );
-
         if ($s_disk_path) $s_url = $o_yadisk->startPublishing($s_disk_path . $d_name);
         else return false;
-        //$o_yadisk->delete($s_disk_path.$d_name);			//uncomment while in debug
+        //$o_yadisk->delete($s_disk_path.$d_name); //uncomment in case of debug
         return $s_url;
     }
 }

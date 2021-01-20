@@ -56,7 +56,7 @@ export function autoChange(element) {
     if (!$(element).is(':hover')) {
         const $this = $(element),
             $inputs = $this.find('input');
-        let ix = +($inputs.index($inputs.filter(':checked'))||-1);
+        let ix = $inputs.index($inputs.filter(':checked'));
         if (ix < $inputs.length - 1) ix++;
         else ix = 0;
         $inputs.eq(ix).siblings('label').trigger('click');

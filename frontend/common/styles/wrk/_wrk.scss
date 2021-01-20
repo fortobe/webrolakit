@@ -77,7 +77,6 @@
     {
         background: none;
         color: inherit;
-        padding: 15px;
 
         &:not(textarea) {
             line-height: 1;
@@ -157,8 +156,8 @@
     &.attached,
     &-attached
     {
-        padding-top: 0;
-        margin-top: 0;
+        padding-top: 0 !important;
+        margin-top: 0 !important;
     }
 
     .avatar:not(.unwrk),
@@ -689,6 +688,13 @@
         margin-bottom: $mrgl;
     }
 
+    .invisible:not(.unwrk),
+    &.invisible,
+    &-invisible
+    {
+        visibility: hidden !important;
+    }
+
     .lc:not(.unwrk),
     &.lc,
     &-lc {
@@ -1108,9 +1114,108 @@
         }
     }
 
+    &.gallery-item,
+    &-gallery-item {
+        display: block;
+        overflow: hidden;
+        position: relative;
+
+        &::after {
+            @include stretch;
+            background: center center no-repeat;
+            content: '';
+            transition: background .3s ease;
+        }
+
+        &:hover {
+
+            &::after {
+                background-color: rgba($black, .5);
+            }
+
+            img {
+                transform: scale(1.05);
+            }
+        }
+
+        &.media {
+
+            &::after {
+                background-size: 25%;
+            }
+        }
+
+        img {
+            transition: transform .3s ease-out;
+        }
+    }
+
+    &.grid,
+    &-grid {
+        display: flex;
+        margin: 0 -15px (-$mrgm);
+
+        .cell,
+        &_cell {
+            padding: 0 15px $mrgm;
+
+            .item,
+            &-item {
+                display: block;
+                text-decoration: none;
+            }
+        }
+    }
+
+    .inp-group:not(.unwrk),
+    &.inp-group,
+    &-inp-group
+    {
+        margin-bottom: $mrgl;
+
+        input:not([type="checkbox"]):not([type="radio"]),
+        textarea,
+        select
+        {
+            display: block;
+            width: 100%;
+        }
+
+        label {
+            display: block;
+            margin-bottom: $mrgs;
+        }
+
+        &.checkable {
+
+            & > * {
+                display: inline-block;
+                vertical-align: middle;
+            }
+
+            input + * {
+                margin-left: $mrgs;
+            }
+
+            label {
+                margin-bottom: 0;
+            }
+        }
+    }
+
+    &.inp-line,
+    &-inp-line
+    {
+        margin-bottom: $mrgl;
+    }
+
     &.opt-conf,
     &-opt-conf {
         position: relative;
+
+        .oc-sect-nav {
+            cursor: pointer;
+        }
 
         .oc-cont,
         .wrk-oc-cont {
@@ -1264,6 +1369,7 @@
         &-tabs-list,
         {
             @include get_flex(flex-start, flex-end);
+            flex-wrap: wrap;
 
             .tab,
             &-tab {
@@ -1295,8 +1401,35 @@
         }
     }
 
-    &.video-player,
-    &-video-player {
-        //todo any styles??
+    &.video-frame,
+    &-video-frame {
+        font-size: 0;
+
+        & > a,
+        a#{&} {
+            display: block;
+            position: relative;
+
+            &::after {
+                @include stretch;
+                background: rgba($black, .5) center center/30% no-repeat;
+                content: '';
+                opacity: .5;
+                transition: opacity .3s ease;
+                z-index: 1;
+            }
+
+            &:hover {
+
+                &::after {
+                    opacity: 1;
+                }
+            }
+        }
+
+        img,
+        video {
+            width: 100%;
+        }
     }
 }

@@ -340,6 +340,15 @@ function get_months_array()
 }
 
 /**
+ * Transforms numeric string into number
+ * @param string $str
+ * @return int
+ */
+function get_number($str) {
+    return +preg_replace("/[^\d\.]/", '', $str);
+}
+
+/**
  * Returns string containing random chars
  *
  * @param int $length - the length of expected string

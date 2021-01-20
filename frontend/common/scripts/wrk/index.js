@@ -3,33 +3,57 @@ import {
     getRandomInt,
 } from "../functions";
 
-//region Accordeon
-export function initAccordeonPlugin($selector = $(".wrk.accordeon, .wrk-accordeon")) {
-    if ($selector.length > 0) {
-        $(document).on("click", ".trigger, .wrk-trigger", function (e) {
-            e.preventDefault();
-            const $this = $(this),
-                $parent = $this.closest(".accordeon, .wrk-accordeon"),
-                $target = $($this.data('target') || $this.attr('href'));
-            if (!$target.length) return;
-            if ($parent.hasClass('static')) {
-                $target.css('height', $target.get(0).scrollHeight);
-            }
-            if ($parent.hasClass("excluding")) {
-                $parent.find('.cont.active, .trigger.active').removeClass('active');
-                $($this).addClass('active');
-                $($target).addClass('active');
-            } else {
-                $($this).toggleClass('active');
-                $($target).toggleClass('active');
-            }
-        });
-    }
+//region accordeon
+/**
+ * Initialises an Accordeon functionality
+ *
+ * Fires on clicking .(wrk-)trigger element, with defined [href] or [data-target] attribute, containing the $target selector (it can be any css selector). The $target must be .cont element, existing within $parent.
+ * if $parent has class .excluding, only one .cont can be unfolded simultaneously.
+ * if $parent has class .static, each time on clicking .cont.active get the precise static height.
+ * if .cont has class .active - it's unfold
+ *
+ * @param {string} selector - parent css selector (".wrk.accordeon, .wrk-accordeon" by default)
+ */
+export function initAccordeonPlugin(selector = ".wrk.accordeon, .wrk-accordeon") {
+    $(document).on("click", ".trigger, .wrk-trigger", function (e) {
+        e.preventDefault();
+        const $this = $(this),
+            $parent = $this.closest(selector),
+            $target = $($this.data('target') || $this.attr('href'));
+        if (!$target.length) return;
+        if ($parent.hasClass('static')) {
+            $target.css('height', $target.get(0).scrollHeight);
+        }
+        if ($parent.hasClass("excluding")) {
+            $parent.find('.cont.active, .trigger.active').removeClass('active');
+            $($this).addClass('active');
+            $($target).addClass('active');
+        } else {
+            $($this).toggleClass('active');
+            $($target).toggleClass('active');
+        }
+    });
 }
 //endregion
-
-//ajax-forms
-export function initAjaxFormPlugin(ajaxFormHandler, selector = '.wrk.ajax-form', urlPrefix = "", urlPostfix = "") {
+//region ajax-forms
+/**
+ * Initialises ajax-form functionality
+ *
+ * @param {function} ajaxFormHandler - custom handler function (null by default)
+ * @param {string} selector - form selector (.wrk.ajax-form by default)
+ * @param {string} urlPrefix - prefix for action attr
+ * @param {string }urlPostfix - postfix attr
+ *
+ * elements:
+ * $selector - initialised form
+ *
+ * attrubutes for $selector:
+ * [data-loadable] - if set empty - $selector is trigerred with .loading class by itsef, if defined - contains the selector of loading area within $selector
+ * [data-captcha] - if set empty - will contain captcha response after the validation
+ * [data-success] - should contain default success message
+ * [data-target] - should contain selector of the area to show success message
+ */
+export function initAjaxFormPlugin(ajaxFormHandler = null, selector = '.wrk.ajax-form', urlPrefix = "", urlPostfix = "") {
 
     $.prototype.setLoadingState = function(state = true) {
         if (this.is("[data-loadable]")) {
@@ -51,6 +75,7 @@ export function initAjaxFormPlugin(ajaxFormHandler, selector = '.wrk.ajax-form',
     if ($(selector).length > 0) {
         $(document).on('submit', selector, function (e) {
             e.preventDefault();
+            // TODO uncomment to use g-captcha
             // if ($(this).is('[data-captcha]')) {
             //     if (!this.dataset.captcha) return false;
             //     e.stopImmediatePropagation();
@@ -75,6 +100,7 @@ export function initAjaxFormPlugin(ajaxFormHandler, selector = '.wrk.ajax-form',
                 formData = $this.attr("enctype") ? new FormData(this) : $this.serialize(),
                 dataType = data.datatype || "json",
                 method = $this.attr("method") || 'post',
+                $headMessage = $this.find('.head-message'),
                 options = {
                     data: formData,
                     dataType: dataType,
@@ -93,10 +119,11 @@ export function initAjaxFormPlugin(ajaxFormHandler, selector = '.wrk.ajax-form',
                             if (result.success) {
                                 if ($this.data('target') && $($this.data('target').length)) {
                                     $($this.data('target')).html(result.message)
-                                } else {
-                                    const $message = $this.find('.head-message');
-                                    $message.addClass('success').html(result.message);
-                                    $this.html($message);
+                                } else if ($headMessage.length) {
+                                    $headMessage.addClass('success').html(result.message);
+                                    $this.html($headMessage);
+                                } else if ($this.data('success')) {
+                                    $this.html($('<p>').addClass('success-message').html($this.data('success')));
                                 }
                                 if (data.reload) {
                                     setTimeout(function () {
@@ -150,8 +177,21 @@ export function initAjaxFormPlugin(ajaxFormHandler, selector = '.wrk.ajax-form',
         });
     }
 }
-
-//counters
+//endregion
+//region counters
+/**
+ * Initialises counters
+ *
+ * @param {boolean} dispatchEvent - whether to dispatch event for frameworks such as React (false by default)
+ *
+ * Elements:
+ * $selector - .wrk.counter, .wrk-counter element
+ * should contain .inc, .dec and an input element as children
+ *
+ * Attrubutes:
+ * $selector:
+ * [data-min], [min] - minumum value
+ */
 export function initCounterPlugin(dispatchEvent = false) {
     $(document).on('click', '.wrk.counter .inc, .wrk.counter .dec, .wrk-counter .inc, .wrk-counter.dec', function () {
         const counter = $(this).closest('.counter, .wrk-counter').find('.count').get(0);
@@ -175,8 +215,17 @@ export function initCounterPlugin(dispatchEvent = false) {
         if (!!min && this.value < min) this.value = min;
     });
 }
-
-//dropdowns
+//endregion
+//region dropdowns
+/**
+ * Initialises dropdowns
+ *
+ * Elements:
+ * $container - $(.wrk.dropdown, .wrk-dropdown) - dropdown container
+ * $options - $($container .options) - options list
+ * $apply - $($container .apply) - apply button
+ * $reset - $($conteiner .reset) - reset button
+ */
 export function initDropDownPlugin() {
 
     const resetHandler = function () {
@@ -260,8 +309,8 @@ export function initDropDownPlugin() {
         });
     }
 }
-
-//mask
+//endregion
+//region mask
 export function initMaskPlugin() {
     $('.wrk.masked-phone, .wrk-masked-phone').mask("8-000-000-0000");
     $('.wrk.masked-date, .wrk-masked-date').mask("00.00.0000");
@@ -285,8 +334,8 @@ export function altPhoneMask(selector = '.wrk.masked-phone-alt') {
 
     $selector.mask('+7 (000) 000-00-00', options);
 }
-
-//modal
+//endregion
+//region modal
 export function initModalPlugin() {
     const defaultSettings = {
             closeBtn: false,
@@ -379,8 +428,8 @@ export function setModal(selector = '.modal-trigger', settings = false) {
         $.fancybox.open(settings);
     });
 }
-
-//option configurator
+//endregion
+//region option configurator TODO figure out
 export function initOptionConfigurator() {
 
     $(document).on('click', '.wrk .oc-option', function (e) {
@@ -400,8 +449,40 @@ export function initOptionConfigurator() {
         $this.addClass('active');
     });
 }
+export function initOptionConfigurator() {
 
-//parallax
+    $(document).on('click', '.wrk .oc-option', function (e) {
+        e.preventDefault();
+        if ($(this).hasClass('active')) {
+            return false;
+        }
+        const $this = $(this),
+            $conf = $this.closest('.wrk.opt-conf, .wrk-opt-conf'),
+            $cont = $conf.find('.oc-cont, .wrk-oc-cont'),
+            $opts = $conf.find('.oc-options, .wrk-oc-options'),
+            option = `[data-option="${$this.data('option')}"]`,
+            module = $this.data('module') ? `[data-module="${$this.data('module')}"]` : '';
+        $opts.find(module + '.active').removeClass('active');
+        $cont.find(module + '.active').removeClass('active');
+        $cont.find(module + option).addClass('active');
+        $this.addClass('active');
+    });
+
+    $(document).on('click', '.wrk .oc-sect-nav', function (e) {
+        e.preventDefault();
+        if ($(this).hasClass('active')) {
+            return false;
+        }
+        const $this = $(this),
+            $conf = $this.closest('.wrk.opt-conf, .wrk-opt-conf'),
+            section = `[data-section="${$this.data('section')}"]`;
+        $this.parent('.oc-sect-navs').find('.active').removeClass('active');
+        $conf.find('[data-section].active').removeClass('active');
+        $conf.find(section).addClass('active');
+    });
+}
+//endregion
+//region parallax
 export function initParallaxPlugin() {
 
     function parallax(pos) {
@@ -431,8 +512,8 @@ export function initParallaxPlugin() {
         });
     }
 }
-
-//scroll
+//endregion
+//region scroll
 export function initScrollPlugin() {
     $(document).on('click', '.wrk.scroller, .wrk-scroller', function (e) {
         e.preventDefault();
@@ -445,8 +526,8 @@ export function initScrollPlugin() {
         return false;
     });
 }
-
-//slider
+//endregion
+//region slider
 export function initSliderPlugin(settings = {}) {
     const $selector = $(settings.selector || '.wrk.slider, .wrk-slider');
     const defaultSettings = {
@@ -546,6 +627,16 @@ export function initSliderPlugin(settings = {}) {
             }
         }
 
+        const watchDots = function(e, slider) {
+            const $dots = $selector.find(`.${classPrefix}slider-dots`);
+            $dots[(slider.options.slidesToShow === slider.slideCount ? 'add' : 'remove') + 'Class']('hidden')
+        };
+
+        $slider.on({
+            init: watchDots,
+            breakpoint: watchDots,
+        });
+
         try {
             if (!!$(this).data("events")) {
                 let events = $(this).data("events");
@@ -599,8 +690,8 @@ export function setSlider($slider = $('.wrk.slider, .wrk-slider'), prefs = {}, i
     }).slick(prefs);
     return $slider.find('.slider-container');
 }
-
-//sticky
+//endregion
+//region sticky
 export function initStickyPlugin() {
     $(".wrk.sticky, .wrk-sticky").sticky({topSpacing: 0,});
 }
@@ -609,8 +700,8 @@ export function setSticky($selector = '.sticky', settings = {topSpacing: 0,}) {
     if (typeof $selector === 'string') $selector = $($selector);
     $selector.sticky(settings);
 }
-
-//tabs
+//endregion
+//region tabs
 export function initTabsPlugin(selector = '.wrk .tab:not(.unwrk), .wrk-tab') {
     $(document).on('click', selector, function (e) {
         e.preventDefault();
@@ -636,8 +727,8 @@ export function initTabsPlugin(selector = '.wrk .tab:not(.unwrk), .wrk-tab') {
         playNext($(this));
     });
 }
-
-//text-scroller
+//endregion
+//region text-scroller
 export function setToggleScroller($selector = '.wrk.text-scroll, .wrk-text-scroller') {
     $(document).on('click', $selector + ' .dismiss', function () {
         $(this).closest($selector).fadeOut(500);
@@ -659,8 +750,8 @@ export function setToggleScroller($selector = '.wrk.text-scroll, .wrk-text-scrol
     };
     scrollText();
 }
-
-//init
+//endregion
+//region initialisation
 export function initPlugins(selector = 'meta[name="plugins"]') {
     let plugins = null;
     if ($(selector).length) {
@@ -713,8 +804,8 @@ export function initPlugins(selector = 'meta[name="plugins"]') {
         }
     }
 }
-
-//Under development...
+//endregion
+//region [under development] TODO
 export function starsBG($selector) {
     if (!$selector || !$selector.length) return;
     const
@@ -746,18 +837,41 @@ export function starsBG($selector) {
 }
 
 export function initVideoPlayer() {
+
     $(document).on('click', '.wrk.video-player .option, .wrk-videoplayer .option', function (e) {
         if (e.currentTarget.tagName === 'A') e.preventDefault();
-        const src = $(this).attr('href') || this.dataset.src;
         const $player = $(this).closest('.video-player, .wrk-video-player');
+        const video = $player.find('video').get(0);
+        if ($player.data('loadable')) {
+            $player.find('video').closest($player.data('loadable')).addClass('loading');
+        }
+        video.classList.add('invisible');
+        if (!!this.dataset.media) {
+            const media = this.dataset.media.split(';').map(e => {
+                const attrs = e.split(',');
+                return $('<source>').attr({
+                    src: attrs[0],
+                    type: attrs[1],
+                });
+            });
+            $player.find('video').html(media);
+        } else {
+            const src = $(this).attr('href') || this.dataset.src;
         if (!src || src[0] === '#' || $player.attr('src') === src) return;
         const poster = this.dataset.poster;
-        $player.find('.option.active').removeClass('active');
-        $(this).addClass('active');
         $player.find('video').attr({
             src: src,
             poster: poster || '',
         });
+        }
+        video.load();
+        $player.find('.option.active').removeClass('active');
+        $(this).addClass('active');
+    });
+
+    $('video').on('canplay canplaythrough', function () {
+        this.classList.remove('invisible');
+        $(this).closest('.loading').removeClass('loading');
     });
 }
 
@@ -767,3 +881,4 @@ export function initMovetos() {
         $($(this).data('moveto')).append($(this));
     });
 }
+//endregion

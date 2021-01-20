@@ -119,13 +119,14 @@ $bp_xs: 320;
     }
 }
 
-@mixin backdrop($zindex: 1, $opacity: .5) {
+@mixin backdrop($zindex: 1, $opacity: .5, $color: $black) {
     position: relative;
 
     &::after {
         @include stretch;
-        background-color: rgba($black, $opacity);
+        background-color: rgba($color, $opacity);
         content: '';
+        z-index: $zindex;
     }
 }
 

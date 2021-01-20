@@ -179,11 +179,13 @@ video {
         }
 
         &:first-of-type {
-            border-radius: px2rem(15) px2rem(15) 0 0;
+            border-top-left-radius: px2rem(15);
+            border-top-right-radius: px2rem(15);
         }
 
         &:last-of-type {
-            border-radius: 0 0 px2rem(15) px2rem(15);
+            border-bottom-left-radius: px2rem(15);
+            border-bottom-right-radius: px2rem(15);
         }
 
         & > *:not(:first-child) {
@@ -218,6 +220,10 @@ video {
 
         select {
             background-position-x: calc(100% - 20px);
+        }
+
+        textarea {
+            width: auto !important;
         }
     }
 }

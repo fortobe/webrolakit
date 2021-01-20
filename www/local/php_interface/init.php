@@ -1,31 +1,52 @@
 <?php
-const LINKS = [];
+//region Globals
 global $o_actions;
+//endregion
+//region Includes and Requires
 require_once("wrk/functions/wrk.package.php");
 include_once(__DIR__.'/wrk/enchancers/listelementwithdescription.php');
 include_once(__DIR__.'/wrk/enchancers/usertypeiblock.php');
+//endregion
+//region Event handlers
 AddEventHandler('iblock', 'OnIBlockPropertyBuildList', ['listElementWithDescription', 'GetIBlockPropertyDescription']);
+AddEventHandler('main', 'OnUserTypeBuildList', ['UserTypeGroupElement', 'GetUserTypeDescription']);
 AddEventHandler('main', 'OnUserTypeBuildList', ['UserTypeIBlock', 'GetUserTypeDescription']);
 AddEventHandler("main", "OnBeforeProlog", "app_init");
-const RESIZE_PRESETS = [
-    'items' => [
-        'THUMB' => [
-            'width' => 470,
-            'height' => 470,
-        ],
-    ],
-    'slider' => [
-        'ADAPTIVE' => [
-            'width' => 992,
-            'height' => 600,
-        ],
-        'SMALLER' => [
-            'width' => 575,
-            'height' => 490,
-        ],
-    ],
+//endregion
+//region Interfaces
+interface Resizables {
+    const ITEM = [575];
+    const ITEM_THUMB = [470];
+    const SLIDER_ADAPTIVE = [575, 490, BX_RESIZE_IMAGE_EXACT];
+    const SLIDER_SMALLER = [992, 600];
+    const SLIDER_DESKTOP = [1200, 750];
+}
+//endregion
+//region Constants
+const LINKS = [];
+const SLIDER_RESIZE_PRESET = [
+    'ADAPTIVE' => Resizables::SLIDER_ADAPTIVE,
+    'SMALLER' => Resizables::SLIDER_SMALLER,
 ];
+//endregion
+//region Functions
+/**
+ * Return the provided class if the path is active
+ *
+ * @param string $url - url to check
+ * @param string $cssClass - class to return
+ * @return string
+ */
+function checkActiveSection($url, $cssClass = 'selected') {
+    global $APPLICATION;
+    return strstr($APPLICATION->GetCurDir(), $url) ? $cssClass : '';
+}
 
+/**
+ * Forces 404 custom page rendering
+ *
+ * @param string $s_path_to_404 - path to 404 custom page
+ */
 function set404($s_path_to_404 = '/404.php') {
     global $APPLICATION;
     $APPLICATION->RestartBuffer();
@@ -34,3 +55,4 @@ function set404($s_path_to_404 = '/404.php') {
     require $_SERVER['DOCUMENT_ROOT'].SITE_TEMPLATE_PATH.'/footer.php';
     die();
 }
+//endregion

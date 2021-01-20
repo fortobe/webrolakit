@@ -1,26 +1,24 @@
 <?
-// _ajax_action - событие на яаксе
-// ответ записывам в $this->_set_ajax_response($a_result);
-
-// _action - событие без аякса
-// ответ записываем в $this->_set_response($a_result);
-// вывод результата action - $NAMECLASS->_response();
+/**
+ * WRK Actions handler class v.2.1
+ * @author Alexander Rozhin, Serge Rola
+ */
 namespace wrk\classes;
 use \wrk\classes\main as WRK;
 
 class wrk_actions {
 
+	//region Local fields
 	private $s_action = '';
-
 	private $s_type_action;
-
 	private $d_response;
-
 	private $response = [
 		'success' => false,
 		'message' => 'Произошла неизвестная ошибка',
 	];
+	//endregion
 
+	//region Constants: messages
 	const ERROR_INVALID_FIELD = "Это поле содержит ошибку";
 	const ERROR_INVALID_EMAIL = "Неверный формат email";
 	const ERROR_INVALID_PHONE = "Неверный формат номера";
@@ -31,10 +29,17 @@ class wrk_actions {
 	const ERROR_FIELDS_MESSAGE = "Некоторые поля содержат ошибку";
 	const VALIDATION_ERROR = "Произошла ошибка валидации. Попробуйте перезагрузить страницу и попробовать ещё раз.";
 	const SUCCESS_SENT = "Успешно отправлено!";
+	//endregion
 
+	//region Constants: RegExp validators
 	const PHONE_EXP = "/^(\+?[0-9]{1,3})?(\s?\(?[0-9]{2,4}\)?\s?)?([0-9]{2,4}-?\s?){1,3}$/";
 	const EMAIL_EXP = "/^[a-zA-Z0-9-\._]+@([-a-z0-9]+\.)+[a-z]{2,4}$/";
+	//endregion
 
+	//region Methods
+	/**
+	 * wrk_actions constructor.
+	 */
 	public function __construct() {
 		if (isset($_REQUEST["ajax_action"])) {
 			$this->s_type_action="_ajax";
@@ -47,6 +52,49 @@ class wrk_actions {
 		$this->_do_action();
 	}
 
+	/**
+	 * Executes an action
+	 */
+	private function _do_action() {
+		if (isset($this->s_action) && isset($this->s_type_action)) {
+			$s_name = $this->s_type_action."_action_".$this->s_action;
+			$this->$s_name();
+			if ($this->s_type_action) $this->_set_ajax_response();
+		}
+	}
+
+	/**
+	 * Returns repsonse for the action
+	 *
+	 * @param $s_action - action name
+	 * @return mixed|false - returns false in case of error
+	 */
+	public function _response($s_action) {
+		return $s_action == $this->s_action ? $this->d_response : false;
+	}
+
+	/**
+	 * Sets response via displaying json
+	 */
+	private function _set_ajax_response() {
+		echo json_encode($this->response);
+		die();
+	}
+
+	/**
+	 * Sets response
+	 *
+	 * @param $a_result - array of result
+	 */
+	private function _set_response($a_result) {
+		$this->d_response = $a_result;
+	}
+
+	/**
+	 * Validates captcha
+	 *
+	 * @param string $token - $_REQUEST field name containing captcha token
+	 */
 	private function validate_captcha($token = 'g-recaptcha-response') {
 		if (isset($_REQUEST[$token])) {
 			if (!empty($_REQUEST[$token])) {
@@ -80,71 +128,91 @@ class wrk_actions {
 		}
 	}
 
-	private function _do_action() {
-		if (isset($this->s_action) && isset($this->s_type_action)) {
-			$s_name = $this->s_type_action."_action_".$this->s_action;
-			$this->$s_name();
-			if ($this->s_type_action) $this->_set_ajax_response();
-		}
-	}
-
-	public function _response($s_action) {
-		if ($s_action == $this->s_action)
-			return $this->d_response;
-	}
-
-	private function _set_ajax_response() {
-		echo json_encode($this->response);
-		die();
-	}
-
-	private function _set_response($a_result) {
-		$this->d_response = $a_result;
-	}
-
+	/**
+	 * Validates email
+	 *
+	 * @param string $s_email - email string
+	 * @return false|int
+	 */
 	private function validate_email($s_email) {
 		return preg_match(self::EMAIL_EXP, $s_email);
 	}
 
+	/**
+	 * Validate phone
+	 *
+	 * @param string $s_phone - phone string
+	 * @return false|int
+	 */
 	private function validate_phone($s_phone) {
 		return preg_match(self::PHONE_EXP, $s_phone);
 	}
 
+	/**
+	 * Validates required string
+	 *
+	 * @param string $s_val - string to validate
+	 * @return bool
+	 */
 	private function validate_required($s_val) {
 		return strlen(preg_replace("/\s/", '', $s_val)) > 0;
 	}
 
+	/**
+	 * Checks whether the value length is within provided range
+	 *
+	 * @param string $s_val - value
+	 * @param int $i_min - minimum value
+	 * @param int $i_max - maximum value
+	 * @return bool
+	 */
 	private function validate_range($s_val, $i_min = 1, $i_max = 0) {
 		$b_valid = strlen($s_val) >= $i_min;
 		if ($i_max > 0) $b_valid = $b_valid && strlen($s_val) <= $i_max;
 		return $b_valid;
 	}
+	//endregion
 
+	//region Action handlers
+	/**
+	 * Test message handler
+	 */
 	public function _ajax_action_test(){
 		if ($_REQUEST['testmsg']){
 			$this->response['status'] = 'success';
 			$this->response['message'] = "You've sent: ".$_REQUEST["testmsg"];
 		}
 	}
-	
+
+	/**
+	 * TODO under development
+	 * User actions handler
+	 */
 	public function _ajax_action_useracts() {
-		global $USER, $APPLICATION;
-		switch($_REQUEST['useract']){
-			case "auth": 
-				break;
-			case "register": 
-				break;
-			case "recovery":
-				break;
-			case "edit":
-				break;
-		}
+//		global $USER, $APPLICATION;
+//		switch($_REQUEST['useract']){
+//			case "auth":
+//				break;
+//			case "register":
+//				break;
+//			case "recovery":
+//				break;
+//			case "edit":
+//				break;
+//		}
 	}
 
+	/**
+	 * Stores city to session handler
+	 * @param [city] - city ID
+	 */
 	public function _action_store_city() {
 		$_SESSION['STORES_CITY'] = $_POST['city'];
 	}
 
+	/**
+	 * Feedback handler boilerplate
+	 */
 	private function _ajax_action_feedback() {
 		if (empty($_POST['policy_check'])) {
 			$this->response['errors']['policy_check'] = self::ERROR_MUST_CHECKED;
@@ -214,8 +282,12 @@ class wrk_actions {
 		} else $this->response['message'] = self::ERROR_FIELDS_MESSAGE;
 	}
 
+	/**
+	 * Cookie acception handler
+	 */
 	private function _ajax_action_cookie_accept() {
 		setcookie('ACCEPT_COOKIE', '1', time() + (3600 * 14));
 	}
+	//endregion
 }
 ?>
