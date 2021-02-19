@@ -102,6 +102,29 @@ function ea($a, $die = true)
 }
 
 /**
+ * Explodes the date string into associative array
+ *
+ * @param string $s_date - date string to explode
+ * @param string $s_date_delimiter - date delimeter
+ * @param string $s_time_delimiter - time delimeter
+ * @return array - an array with exploded date components under corresponding keys
+ */
+function explode_date($s_date, $s_date_delimiter = '.', $s_time_delimiter = ':') {
+    $arDate = ['raw' => $s_date];
+    $arDateRaw = explode(' ', $s_date);
+    $arDate['date'] = $arDateRaw[0];
+    if (!!$arDateRaw) $arDate['time'] = $arDateRaw[1];
+    $arDateRaw = [explode($s_date_delimiter, $arDateRaw[0]), explode($s_time_delimiter, $arDateRaw[1])];
+    if (count($arDateRaw[0]) === 3) {
+        $arDate = array_combine(['day', 'month', 'year'], $arDateRaw[0]);
+    }
+    if (count($arDateRaw[1]) > 2) {
+        $arDate = array_merge($arDate, array_combine(['hours', 'minutes', 'seconds'], $arDateRaw[1]));
+    }
+    return $arDate;
+}
+
+/**
  * Formats date to DB ready string
  *
  * @param string $s_in - date string of any supported format
@@ -225,6 +248,17 @@ function get_declensions($i_count, $a_desc, $b_return_array = false)
  */
 function get_discounted_price($m_price, $i_discount = 0) {
     return +str_replace(' ', '', $m_price) * ($i_discount > 0 ? 1 - $i_discount / 100 : 1);
+}
+
+/**
+ * Returns URL of the remote placeholder image
+ *
+ * @param array $a_sizes - array of sizes, contains width and optionally height
+ * @param string $s_text - text of the placeholder
+ * @return string - url
+ */
+function get_image_placeholder($a_sizes = [500], $s_text = "") {
+    return "https://via.placeholder.com/{$a_sizes[0]}".($a_sizes[1]?"x".$a_sizes[1]:"").($s_text ? "/?text=".$s_text : "");
 }
 
 /**

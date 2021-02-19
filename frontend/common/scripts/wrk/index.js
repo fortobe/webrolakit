@@ -429,26 +429,7 @@ export function setModal(selector = '.modal-trigger', settings = false) {
     });
 }
 //endregion
-//region option configurator TODO figure out
-export function initOptionConfigurator() {
-
-    $(document).on('click', '.wrk .oc-option', function (e) {
-        e.preventDefault();
-        if ($(this).hasClass('active')) {
-            return false;
-        }
-        const $this = $(this),
-            $conf = $this.closest('.wrk.opt-conf, .wrk-opt-conf'),
-            $cont = $conf.find('.oc-cont, .wrk-oc-cont'),
-            $opts = $conf.find('.oc-options, .wrk-oc-options'),
-            option = `[data-option="${$this.data('option')}"]`,
-            module = $this.data('module') ? `[data-module="${$this.data('module')}"]` : '';
-        $opts.find(module + '[data-option].active').removeClass('active');
-        $cont.find(module + '.active').removeClass('active');
-        $cont.find(module + option).addClass('active');
-        $this.addClass('active');
-    });
-}
+//region option configurator
 export function initOptionConfigurator() {
 
     $(document).on('click', '.wrk .oc-option', function (e) {
@@ -627,14 +608,15 @@ export function initSliderPlugin(settings = {}) {
             }
         }
 
-        const watchDots = function(e, slider) {
-            const $dots = $selector.find(`.${classPrefix}slider-dots`);
-            $dots[(slider.options.slidesToShow === slider.slideCount ? 'add' : 'remove') + 'Class']('hidden')
+        const watchControls = function(e, slider) {
+            const $controls = $slider.closest('.slider').find(`.${classPrefix}slider-dots, .${classPrefix}slider-controls`);
+            $controls[(slider.options.slidesToShow === slider.slideCount ? 'add' : 'remove') + 'Class']('hidden')
         };
 
         $slider.on({
-            init: watchDots,
-            breakpoint: watchDots,
+            init: watchControls,
+            reinit: watchControls,
+            breakpoint: watchControls,
         });
 
         try {
@@ -711,6 +693,10 @@ export function initTabsPlugin(selector = '.wrk .tab:not(.unwrk), .wrk-tab') {
         $cont.find('.tab.active, [data-tab].active').removeClass('active');
         $this.addClass('active');
         $content.find(`[data-tab="${$this.data('tab')||$this.attr('href')}"]`).addClass('active');
+        const $slider = $content.find('.active').find('.slider:not(.unwrk) .slider-container');
+        if (!!$slider.length) {
+            $slider.slick('refresh');
+        }
     });
 
     const playNext = $player => {

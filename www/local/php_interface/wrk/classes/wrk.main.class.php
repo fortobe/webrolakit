@@ -2,13 +2,13 @@
 
 namespace wrk\classes;
 
-use Bitrix\Main\DB\MysqliConnection;
+use \Bitrix\Main\DB\MysqliConnection;
 
 \CModule::IncludeModule("search");
 \CModule::IncludeModule("iblock");
 \CModule::IncludeModule("highloadblock");
 
-use Bitrix\Highloadblock as HL;
+use \Bitrix\Highloadblock as HL;
 
 class main
 {
@@ -664,8 +664,8 @@ class main
             $m_id = self::get_hlblock_id($m_id);
         }
         $a_filter = $a_params['filter'] ?: [];
-        $hlblock = \HL\HighloadBlockTable::getById($m_id)->fetch();
-        $entity = \HL\HighloadBlockTable::compileEntity($hlblock);
+        $hlblock = HL\HighloadBlockTable::getById($m_id)->fetch();
+        $entity = HL\HighloadBlockTable::compileEntity($hlblock);
         $entity_class = $entity->getDataClass();
         if ($a_params["entity"]) return $entity_class;
         else {

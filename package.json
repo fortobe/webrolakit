@@ -1,6 +1,6 @@
 {
   "name": "wrk",
-  "version": "2.1.0",
+  "version": "2.3.0",
   "description": "Startup kit for Bitrix fullstack development",
   "main": "index.js",
   "scripts": {
@@ -21,16 +21,23 @@
   "license": "ISC",
   "dependencies": {
     "bower": "^1.8.8",
-    "gulp-sourcemaps": "^2.6.5"
+    "gulp-sourcemaps": "^2.6.5",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-redux": "^7.2.1",
+    "react-thunk": "^1.0.0",
+    "redux": "^4.0.5",
+    "redux-thunk": "^2.3.0",
+    "thunk": "0.0.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.8.7",
-    "@babel/preset-env": "^7.8.7",
-    "@babel/preset-react": "^7.8.3",
+    "@babel/core": "^7.12.13",
+    "@babel/preset-env": "^7.12.13",
+    "@babel/preset-react": "^7.12.13",
     "babel": "^6.23.0",
     "babel-core": "^6.26.3",
     "babelify": "^10.0.0",
-    "browser-sync": "^2.26.7",
+    "browser-sync": "^2.26.14",
     "browserify": "^16.5.0",
     "gulp": "^4.0.2",
     "gulp-autoprefixer": "^6.1.0",

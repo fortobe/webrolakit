@@ -14,6 +14,17 @@ AddEventHandler('main', 'OnUserTypeBuildList', ['UserTypeIBlock', 'GetUserTypeDe
 AddEventHandler("main", "OnBeforeProlog", "app_init");
 //endregion
 //region Interfaces
+interface Placeholder {
+    const BANNER = SITE_TEMPLATE_PATH.'/assets/img/placeholders/pl_banner.png';
+    const CARD = SITE_TEMPLATE_PATH.'/assets/img/placeholders/pl_card.png';
+    const ICON = SITE_TEMPLATE_PATH.'/assets/img/placeholders/pl_icon.png';
+    const IMAGE = SITE_TEMPLATE_PATH.'/assets/img/placeholders/pl_image.png';
+    const JUMBO = SITE_TEMPLATE_PATH.'/assets/img/placeholders/pl_jumbo.png';
+    const LOGO = SITE_TEMPLATE_PATH.'/assets/img/placeholders/pl_logo.png';
+    const SLIDE = SITE_TEMPLATE_PATH.'/assets/img/placeholders/pl_slide.png';
+    const THUMB = SITE_TEMPLATE_PATH.'/assets/img/placeholders/pl_thumb.png';
+}
+
 interface Resizables {
     const ITEM = [575];
     const ITEM_THUMB = [470];

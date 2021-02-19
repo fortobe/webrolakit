@@ -1,0 +1,50 @@
+@font-face {
+    font-family: 'Styrene A LC';
+    src: url('StyreneALC-Bold.woff2') format('woff2'),
+        url('StyreneALC-Bold.woff') format('woff'),
+        url('StyreneALC-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Styrene A LC';
+    src: url('StyreneALC-Regular.woff2') format('woff2'),
+        url('StyreneALC-Regular.woff') format('woff'),
+        url('StyreneALC-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Styrene A LC';
+    src: url('StyreneALC-Medium.woff2') format('woff2'),
+        url('StyreneALC-Medium.woff') format('woff'),
+        url('StyreneALC-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Styrene A LC';
+    src: url('StyreneALC-Thin.woff2') format('woff2'),
+        url('StyreneALC-Thin.woff') format('woff'),
+        url('StyreneALC-Thin.ttf') format('truetype');
+    font-weight: 100;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Styrene A LC';
+    src: url('StyreneALC-Light.woff2') format('woff2'),
+        url('StyreneALC-Light.woff') format('woff'),
+        url('StyreneALC-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
