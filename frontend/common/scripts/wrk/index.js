@@ -498,7 +498,8 @@ export function initParallaxPlugin() {
 export function initScrollPlugin() {
     $(document).on('click', '.wrk.scroller, .wrk-scroller', function (e) {
         e.preventDefault();
-        let scrollEl = $(this).attr('href');
+        let scrollEl = $(this).attr('href') || $(this).data('scroll-to');
+        if (!scrollEl) return;
         if ($(scrollEl).length) {
             $('html, body').animate({
                 scrollTop: $(scrollEl).offset().top,

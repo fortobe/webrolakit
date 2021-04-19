@@ -417,7 +417,13 @@ class main
             }
             if ($a_params["only"] || !!$a_params['id']) return $a_elem;
             $i++;
-            $a_params['index'] ? $a_elems[$a_elem[$a_params['index']]] = $a_elem : $a_elems[] = $a_elem;
+            if (!!$a_params['index']) {
+                if (is_array($a_params['index'])) {
+                    $a_elems[$a_elem['PROPS'][$a_params['index'][0]][$a_params['index'][1]?:'VALUE']] = $a_elem;
+                } else {
+                    $a_elems[$a_elem[$a_params['index']]] = $a_elem;
+                }
+            } else $a_elems[] = $a_elem;
         }
         return $a_elems;
     }

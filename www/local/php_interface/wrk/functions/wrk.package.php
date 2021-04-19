@@ -57,6 +57,21 @@ function clear_phone_formatting($sPhone)
 }
 
 /**
+ * Returns an XML(HTML\SVG) tag string with provided name, set of attributes and content given as a string
+ *
+ * @param string $s_name - name of the tag
+ * @param bool|null|string $m_content - string of the content. if it's false - returns a self-closing tag
+ * @param array $a_attributes - an array of attributes set (see <get_attr_string()>)
+ * @return string - returns the tag or an empty string is the name isn't provided
+ */
+function create_xml_tag($s_name, $m_content = '', $a_attributes = []) {
+    $tag = "<{$s_name}";
+    if (!empty($a_attributes)) $tag .= " ".get_attr_string($a_attributes);
+    $tag .= $m_content !== false ? ">{$m_content}</{$s_name}>" : "/>";
+    return $s_name ? $tag : '';
+}
+
+/**
  * Downloads files via web interface
  *
  * @param string $url - source url

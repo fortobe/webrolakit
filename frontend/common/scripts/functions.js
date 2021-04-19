@@ -280,6 +280,19 @@ export function getRemoteImages(url, condition = true) {
 }
 
 /**
+ * @function - Parses element's transform style property into an object
+ * @param {object <HTMLElement>} element
+ * @return {object}
+ */
+export function parseElementTransforms(element) {
+    if (!element || !element.style.transform) return {};
+    return element.style.transform.replace(', ', ',').split(' ').map(tf => tf.match(/[^ ,()]+/g)).reduce((a,c) => {
+        a[c[0]] = c.length > 2 ? c.slice(1) : c[1];
+        return a;
+    }, {});
+}
+
+/**
  * @function - Returns a map (plain JS object) of set GET parameters
  * @return {object}
  */
@@ -317,6 +330,20 @@ export function refreshPage(time = 0, redirect= '') {
 }
 
 /**
+ * @procedure - Scrolls to the provided JQuery element
+ * @param {JQuery} $element - element
+ * @param {int} duration
+ * @param {function|null} callback
+ */
+export function scrollTo($element, duration = 600, callback = null) {
+    if ($element.length && typeof duration === 'number') {
+        $('html, body').animate({
+            scrollTop: $element.offset().top,
+        }, duration, 'swing', callback);
+    }
+}
+
+/**
  * @procedure - Sets the cookie
  * @param {string} cname - cookie name
  * @param {*} cvalue - cookie value (preferred to be a string)
@@ -327,6 +354,16 @@ export function setCookie(cname, cvalue, exdays = 0) {
     d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
     const expires = "expires=" + d.toUTCString();
     document.cookie = cname + "=" + cvalue + "; " + expires;
+}
+
+/**
+ * @function Transforms CSS transforms object into a string
+ * @param {object} transforms
+ * @return {string}
+ */
+export function stringifyTransforms(transforms) {
+    if (typeof transforms !== 'object') return '';
+    return Object.entries(transforms).map(e => `${e[0]}(${Array.isArray(e[0]) ? e.join(',') : e[1]})`).join(' ');
 }
 
 /**

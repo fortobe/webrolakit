@@ -152,7 +152,6 @@ video {
 }
 
 .burger {
-    color: currentColor !important;
     display: inline-block;
     width: 30px;
 
@@ -163,7 +162,6 @@ video {
         border-top: 3px solid;
         content: '';
         display: block;
-        transition: all .3s ease;
     }
 
     &::before {
@@ -187,6 +185,35 @@ video {
 
     & + * {
         margin-left: $mrgs;
+    }
+}
+
+.close-btn {
+    cursor: pointer;
+    display: inline-block;
+    height: 20px;
+    opacity: .7;
+    width: 20px;
+    padding-top: 10px;
+
+    &::before,
+    &::after
+    {
+        border-top: 2px solid;
+        content: '';
+        display: block;
+    }
+
+    &::before {
+        transform: rotate(45deg) translateY(-1px);
+    }
+
+    &::after {
+        transform: rotate(-45deg) translate(2px, -2px);
+    }
+
+    &:hover {
+        opacity: 1;
     }
 }
 
@@ -370,6 +397,10 @@ video {
 
 .heading-desc {
     margin: $mrgl 0;
+
+    &:empty {
+        margin: 0;
+    }
 }
 
 .heading-like {
